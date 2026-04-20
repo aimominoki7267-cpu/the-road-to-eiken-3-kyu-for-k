@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>英検3級 発音チェック</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#0a0c1e 0%,#10152a 100%);
+      color:#ddd9f0;
+      font-family:-apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
+      display:flex;justify-content:center;font-size:16px;
+    }
+    .app{width:100%;max-width:680px;min-height:100vh;padding-bottom:48px;}
+
+    /* Header */
+    .header{padding:22px 28px 18px;border-bottom:1px solid #1e1b38;display:flex;align-items:center;justify-content:space-between;}
+    .header-label{font-size:11px;letter-spacing:.18em;color:#5c59a0;text-transform:uppercase;margin-bottom:4px;}
+    .header-title{font-size:20px;font-weight:700;color:#e8e4ff;}
+    .header-sub{font-size:13px;color:#7c77a8;margin-top:2px;}
+    input[type="date"]{background:#1a1730;border:1px solid #2e2b50;border-radius:10px;color:#b0acdc;padding:9px 13px;font-size:15px;outline:none;font-family:inherit;}
+
+    /* Day info */
+    .day-info{padding:14px 28px 0;}
+    .day-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+    .day-badge{background:#3a36a8;color:#c8c5ff;font-size:13px;font-weight:700;padding:5px 16px;border-radius:20px;}
+    .mode-badge{font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;}
+    .mode-study{background:#0a2010;color:#50c878;border:1px solid #1a4a28;}
+    .mode-quiz{background:#1a1230;color:#9b79e0;border:1px solid #3a2860;}
+    .word-range{font-size:13px;color:#5c59a0;}
+    .counter{margin-left:auto;font-size:13px;color:#5c5888;}
+    .progress-track{height:4px;background:#1a1730;border-radius:2px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:2px;transition:width .4s ease;}
+
+    /* Main */
+    .main{padding:18px 28px 0;}
+
+    /* Mode Select */
+    .mode-select{padding:8px 0;}
+    .mode-select-title{font-size:22px;font-weight:700;color:#e8e4ff;text-align:center;margin-bottom:6px;}
+    .mode-select-sub{font-size:13px;color:#5c59a0;text-align:center;margin-bottom:28px;}
+    .mode-btn{display:flex;align-items:center;gap:18px;width:100%;padding:22px;border-radius:14px;border:1px solid;cursor:pointer;font-family:inherit;text-align:left;margin-bottom:14px;transition:all .15s;}
+    .mode-btn-study{background:#0a2010;border-color:#1a4a28;color:#c0e8c8;}
+    .mode-btn-study:hover{background:#0e2a18;}
+    .mode-btn-quiz{background:#1a1230;border-color:#3a2860;color:#c8b0f8;}
+    .mode-btn-quiz:hover{background:#201840;}
+    .mode-btn-stats{background:#0e1828;border-color:#1e3850;color:#78b8e8;margin-top:4px;}
+    .mode-btn-stats:hover{background:#142030;}
+    .mode-btn-icon{font-size:28px;flex-shrink:0;width:36px;text-align:center;}
+    .mode-btn-label{font-size:17px;font-weight:700;margin-bottom:4px;}
+    .mode-btn-desc{font-size:13px;opacity:.7;line-height:1.5;}
+
+    /* Word Card */
+    .word-card{border-radius:18px;padding:26px 24px 22px;margin-bottom:14px;position:relative;overflow:hidden;background:#14122a;border:1px solid rgba(124,119,209,.16);}
+    .glow{position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;pointer-events:none;}
+    .word-meta{display:flex;gap:10px;align-items:center;margin-bottom:14px;}
+    .word-num{font-size:13px;color:#3a3860;}
+    .pos-badge{font-size:12px;font-weight:600;padding:3px 11px;border-radius:5px;}
+    .word-en{font-size:48px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px;line-height:1.1;}
+    .word-ja{font-size:24px;font-weight:500;margin-bottom:22px;opacity:.9;}
+    .example-box{background:#0e0c20;border-radius:14px;padding:18px;}
+    .ex-en{font-size:17px;color:#c0bce8;line-height:1.75;margin-bottom:9px;font-weight:500;}
+    .ex-ja{font-size:14px;color:#5c5888;line-height:1.6;}
+
+    /* Conjugation Card (with pronunciation check) */
+    .conj-card{border-radius:18px;padding:24px 22px;margin-bottom:14px;background:#0f1a14;border:1px solid rgba(80,200,120,.2);}
+    .conj-header{display:flex;gap:10px;align-items:center;margin-bottom:18px;}
+    .conj-label{font-size:11px;letter-spacing:.15em;color:#3a8a56;text-transform:uppercase;font-weight:600;}
+    .conj-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+    .conj-row{display:flex;align-items:center;gap:14px;background:#0a1a10;border-radius:12px;padding:14px 18px;}
+    .conj-role{font-size:12px;color:#3a6a46;width:56px;flex-shrink:0;}
+    .conj-form{font-size:30px;font-weight:800;color:#fff;letter-spacing:-.5px;flex:1;}
+    .conj-form.same{color:#5a7a62;font-size:26px;}
+    .conj-play{border-radius:10px;padding:12px 20px;font-size:15px;cursor:pointer;font-family:inherit;transition:all .2s;background:#1a3a22;border:1px solid #2a5a32;color:#60c070;font-weight:600;display:flex;align-items:center;gap:8px;width:100%;justify-content:center;margin-bottom:16px;}
+    .conj-play.playing{background:rgba(80,200,120,.15);border-color:rgba(80,200,120,.5);color:#80e090;}
+
+    /* Pronunciation Check Section */
+    .pronun-section{border-top:1px solid rgba(80,200,120,.2);padding-top:18px;transition:opacity .3s;}
+    .pronun-intro{font-size:15px;font-weight:700;color:#80e090;text-align:center;margin-bottom:18px;}
+    .pronun-step{
+      background:#081408;
+      border:2px solid #1a4a28;
+      border-radius:16px;
+      padding:20px 18px;
+      margin-bottom:14px;
+      transition:all .3s;
+    }
+    .pronun-step.active{border-color:#40c060;background:#0a1e0a;}
+    .pronun-step.done-ok{border-color:#50c878;background:#061a0a;}
+    .pronun-step.done-ng{border-color:#c05050;background:#1a0808;}
+    .pronun-step-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#3a6a46;margin-bottom:6px;}
+    .pronun-step-word{font-size:36px;font-weight:800;color:#c0e8c0;letter-spacing:-.5px;margin-bottom:14px;}
+    .pronun-step.done-ok .pronun-step-word{color:#50c878;}
+    .pronun-step.done-ng .pronun-step-word{color:#e06060;}
+
+    /* Mic button */
+    .mic-btn{
+      width:100%;
+      padding:18px;
+      border-radius:14px;
+      font-size:18px;
+      font-weight:700;
+      font-family:inherit;
+      cursor:pointer;
+      transition:all .2s;
+      background:#1a3a22;
+      border:2px solid #2a5a32;
+      color:#60c070;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
+    .mic-btn:hover{background:#204a28;border-color:#40a050;}
+    .mic-btn.listening{
+      background:#0a2a10;
+      border-color:#60d070;
+      color:#80f090;
+      animation:pulse-border 1s ease-in-out infinite;
+    }
+    .mic-btn.disabled{opacity:.4;cursor:default;}
+    @keyframes pulse-border{0%,100%{border-color:#60d070;box-shadow:0 0 0 0 rgba(96,208,112,.4);}50%{border-color:#80f090;box-shadow:0 0 0 8px rgba(96,208,112,.0);}}
+
+    .pronun-result{
+      margin-top:12px;
+      padding:14px 16px;
+      border-radius:12px;
+      font-size:16px;
+      font-weight:600;
+      line-height:1.6;
+      display:none;
+    }
+    .pronun-result.ok{background:#0a2010;color:#50e878;border:1px solid #1a5028;display:block;}
+    .pronun-result.ng{background:#200a0a;color:#e06060;border:1px solid #501818;display:block;}
+
+    /* Pronun Summary */
+    .pronun-summary{
+      background:#0a1e10;
+      border:2px solid #30a050;
+      border-radius:16px;
+      padding:22px 18px;
+      text-align:center;
+      margin-top:4px;
+    }
+    .pronun-stars{font-size:36px;margin-bottom:8px;letter-spacing:4px;}
+    .pronun-score{font-size:22px;font-weight:800;color:#80f090;margin-bottom:6px;}
+    .pronun-msg{font-size:15px;color:#60c878;}
+
+    /* Quiz Card */
+    .quiz-card{border-radius:18px;padding:24px 22px;margin-bottom:14px;background:#13102a;border:1px solid rgba(155,121,224,.2);}
+    .quiz-review-badge{font-size:11px;background:#2a1a40;color:#9b79e0;border:1px solid #4a2a70;border-radius:5px;padding:3px 10px;display:inline-block;margin-bottom:12px;}
+    .quiz-sentence{font-size:19px;color:#c0bce8;line-height:1.85;margin-bottom:8px;font-weight:500;}
+    .quiz-blank{display:inline-block;background:#2a2050;border-bottom:2.5px solid #6a5aaa;color:#6a5aaa;padding:0 14px;border-radius:5px 5px 0 0;font-weight:700;font-size:19px;min-width:90px;text-align:center;}
+    .quiz-ja{font-size:14px;color:#5c5888;line-height:1.6;margin-bottom:22px;}
+    .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .choice-btn{padding:20px 12px;border-radius:14px;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;background:#1a1730;border:1px solid #2e2b50;color:#c0bce8;text-align:center;min-height:72px;display:flex;align-items:center;justify-content:center;}
+    .choice-btn:hover:not(:disabled){background:#242040;border-color:#4a4080;}
+    .choice-btn:active:not(:disabled){transform:scale(.97);}
+    .choice-btn.correct{background:#0a2a10!important;border-color:#40a060!important;color:#60e080!important;}
+    .choice-btn.wrong{background:#2a0a0a!important;border-color:#a04040!important;color:#e06060!important;}
+    .choice-btn.show-correct{background:#0a2a10!important;border-color:#40a060!important;color:#60e080!important;}
+    .choice-btn:disabled{cursor:default;}
+    .quiz-result{font-size:15px;font-weight:600;margin-top:14px;padding:13px 16px;border-radius:12px;display:none;line-height:1.6;}
+    .quiz-result.correct{background:#0a2010;color:#50d070;border:1px solid #1a5028;display:block;}
+    .quiz-result.wrong{background:#200a0a;color:#e06060;border:1px solid #501818;display:block;}
+
+    /* Nav */
+    .nav{display:flex;gap:12px;}
+    .nav-btn{padding:17px 16px;border-radius:14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s;min-height:58px;}
+    .nb-prev{flex:1;background:#1a1730;border:1px solid #2e2b50;color:#7c77a8;}
+    .nb-prev:disabled{background:#0e0c1e;color:#2e2b50;cursor:default;}
+    .nb-study{flex:2;background:#3a36a8;color:#fff;border:none;}
+    .nb-conj{flex:2;background:#1a3a22;color:#60c070;border:1px solid #2a5a32;}
+    .nb-quiz{flex:2;background:#3a2880;color:#c8b0f8;border:none;}
+
+    /* Summary */
+    .summary-card{border-radius:18px;padding:26px 22px;background:#13102a;border:1px solid rgba(155,121,224,.2);margin-bottom:14px;}
+    .summary-title{font-size:20px;font-weight:700;color:#e8e4ff;margin-bottom:18px;}
+    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #1e1b30;}
+    .summary-row:last-child{border-bottom:none;}
+    .summary-label{font-size:15px;color:#7c77a8;}
+    .summary-val{font-size:24px;font-weight:700;}
+    .val-good{color:#50c878;}.val-warn{color:#f5a623;}.val-bad{color:#e06060;}
+    .weak-list{margin-top:18px;}
+    .weak-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+    .weak-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0e0c20;border-radius:10px;margin-bottom:8px;}
+    .weak-word{font-size:17px;font-weight:700;color:#c0bce8;}
+    .weak-cnt{font-size:12px;color:#9b79e0;background:#2a1a40;padding:3px 10px;border-radius:5px;}
+    .hist-section{margin-top:20px;border-top:1px solid #1e1b30;padding-top:18px;}
+    .hist-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
+    .hist-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:12px;}
+    .hist-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0;}
+    .hist-bar-bg{width:100%;background:#1a1730;border-radius:4px;overflow:hidden;height:56px;display:flex;align-items:flex-end;}
+    .hist-bar-fill{width:100%;border-radius:3px;transition:height .5s ease;min-height:3px;}
+    .hist-bar-pct{font-size:9px;color:#5c5888;text-align:center;width:100%;}
+    .hist-bar-date{font-size:9px;color:#3a3860;text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .hist-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #13112a;}
+    .hist-row:last-child{border-bottom:none;}
+    .hist-row-date{font-size:13px;color:#7c77a8;flex:1;}
+    .hist-row-day{font-size:12px;color:#3a3860;width:48px;text-align:center;}
+    .hist-row-bar{flex:2;height:6px;background:#1a1730;border-radius:3px;overflow:hidden;margin:0 10px;}
+    .hist-row-fill{height:100%;border-radius:3px;}
+    .hist-row-pct{font-size:15px;font-weight:700;width:40px;text-align:right;}
+    .stats-page{padding:4px 0;}
+    .stats-back{display:flex;align-items:center;gap:8px;background:none;border:none;color:#5c59a0;font-size:14px;font-family:inherit;cursor:pointer;padding:4px 0 22px;width:100%;}
+    .stats-back:hover{color:#8884cc;}
+    .stats-section-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;margin-top:4px;}
+    .center-msg{text-align:center;padding:56px 24px;}
+    .center-icon{font-size:40px;margin-bottom:12px;}
+    .center-title{font-size:20px;font-weight:700;color:#8884cc;margin-bottom:8px;}
+    .center-sub{font-size:14px;color:#5c59a0;line-height:1.8;}
+    .hidden{display:none;}
+    .no-mic-notice{font-size:13px;color:#5c5888;text-align:center;padding:12px;background:#0e0c20;border-radius:10px;margin-top:10px;}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="header-label">英検3級 · でる順パス単</div>
+      <div class="header-title">音読＆発音チェック</div>
+    </div>
+    <input type="date" id="dateInput" value="2026-04-20" min="2026-04-20" max="2026-05-30"/>
+  </div>
+  <div class="day-info">
+    <div class="day-row">
+      <span class="day-badge" id="dayBadge">Day 1</span>
+      <span class="mode-badge mode-study" id="modeBadge">学習</span>
+      <span class="word-range" id="wordRange">第1語〜第25語</span>
+      <span class="counter hidden" id="counter"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="main">
+
+    <!-- モード選択 -->
+    <div id="modeSelectView" class="hidden">
+      <div class="mode-select">
+        <div class="mode-select-title" id="modeSelectTitle">Day 1</div>
+        <div class="mode-select-sub" id="modeSelectSub">どちらから始めますか？</div>
+        <button class="mode-btn mode-btn-study" onclick="startStudy()">
+          <span class="mode-btn-icon">📖</span>
+          <div><div class="mode-btn-label">学習モード</div><div class="mode-btn-desc">単語カード → 活用形＆発音チェック</div></div>
+        </button>
+        <button class="mode-btn mode-btn-quiz" onclick="startQuizFromSelect()">
+          <span class="mode-btn-icon">✏️</span>
+          <div><div class="mode-btn-label">クイズモード</div><div class="mode-btn-desc">今日の単語＋復習語で4択テスト</div></div>
+        </button>
+        <button class="mode-btn mode-btn-stats" onclick="showStats()">
+          <span class="mode-btn-icon">📊</span>
+          <div><div class="mode-btn-label">成果を見る</div><div class="mode-btn-desc">スコア履歴・苦手な単語を確認</div></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- 学習: 単語カード -->
+    <div id="wordCardView" class="hidden">
+      <div class="word-card" id="wordCard">
+        <div class="glow" id="glowEl"></div>
+        <div class="word-meta">
+          <span class="word-num" id="wordNum"></span>
+          <span class="pos-badge" id="posBadge"></span>
+        </div>
+        <div class="word-en" id="wordEn"></div>
+        <div class="word-ja" id="wordJa"></div>
+        <div class="example-box">
+          <div class="ex-en" id="exEn"></div>
+          <div class="ex-ja" id="exJa"></div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="nav-btn nb-prev" id="prevBtn" onclick="goPrev()" disabled>← 前へ</button>
+        <button class="nav-btn nb-study" id="nextBtn" onclick="goNext()">次へ →</button>
+      </div>
+    </div>
+
+    <!-- 学習: 活用カード（発音チェック付き） -->
+    <div id="conjCardView" class="hidden">
+      <div class="conj-card">
+        <div class="conj-header"><span class="conj-label">動詞の活用形</span></div>
+        <div class="conj-rows" id="conjRows"></div>
+        <button class="conj-play" id="conjPlayBtn" onclick="playConj()">▶ もう一度聞く</button>
+
+        <!-- 発音チェックセクション（音声再生後に表示） -->
+        <div class="pronun-section hidden" id="pronunSection">
+          <div class="pronun-intro">🎤 発音してみよう！</div>
+          <div id="pronunSteps"></div>
+          <div class="pronun-summary hidden" id="pronunSummary">
+            <div class="pronun-stars" id="pronunStars"></div>
+            <div class="pronun-score" id="pronunScore"></div>
+            <div class="pronun-msg" id="pronunMsg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="nav-btn nb-prev" onclick="backToWord()">← 単語に戻る</button>
+        <button class="nav-btn nb-study" id="conjNextBtn" onclick="goNextWord()">次の単語 →</button>
+      </div>
+    </div>
+
+    <!-- クイズ: 問題 -->
+    <div id="quizCardView" class="hidden">
+      <div class="quiz-card">
+        <div class="quiz-review-badge hidden" id="reviewBadge">復習問題</div>
+        <div class="quiz-sentence" id="quizSentence"></div>
+        <div class="quiz-ja" id="quizJa"></div>
+        <div class="choices" id="choicesGrid"></div>
+        <div class="quiz-result" id="quizResult"></div>
+      </div>
+      <div class="nav" style="margin-top:14px">
+        <button class="nav-btn nb-quiz" id="quizNextBtn" onclick="nextQuizQ()" style="display:none;flex:1">次の問題 →</button>
+      </div>
+    </div>
+
+    <!-- クイズ: 結果 -->
+    <div id="summaryView" class="hidden">
+      <div class="summary-card">
+        <div class="summary-title">クイズ結果</div>
+        <div class="summary-row"><span class="summary-label">正解</span><span class="summary-val val-good" id="sumCorrect"></span></div>
+        <div class="summary-row"><span class="summary-label">不正解</span><span class="summary-val val-bad" id="sumWrong"></span></div>
+        <div class="summary-row"><span class="summary-label">正答率</span><span class="summary-val" id="sumRate"></span></div>
+        <div class="weak-list" id="weakList"></div>
+        <div class="hist-section" id="histSection">
+          <div class="hist-title">スコア履歴</div>
+          <div class="hist-chart" id="histChart"></div>
+          <div id="histList"></div>
+        </div>
+      </div>
+      <div class="nav" style="gap:12px">
+        <button class="nav-btn nb-prev" style="flex:1" onclick="showView('modeSelectView')">ホームに戻る</button>
+        <button class="nav-btn nb-study" style="flex:2" onclick="finishDay()">もう一度学習する</button>
+      </div>
+    </div>
+
+    <!-- 成果ページ -->
+    <div id="statsView" class="hidden">
+      <div class="stats-page">
+        <button class="stats-back" onclick="showView('modeSelectView')">← ホームに戻る</button>
+        <div class="stats-section-title">スコア履歴</div>
+        <div class="hist-chart" id="statsChart"></div>
+        <div id="statsList"></div>
+        <div style="margin-top:22px">
+          <div class="stats-section-title">苦手な単語</div>
+          <div id="statsWeak"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="noDataView" class="center-msg hidden">
+      <div class="center-icon">📚</div>
+      <div class="center-title">この日のデータはまだ準備中</div>
+      <div class="center-sub">現在はDay 1〜10（第1〜250語）が収録されています。</div>
+    </div>
+    <div id="completeView" class="center-msg hidden">
+      <div class="center-icon">🎉</div>
+      <div class="center-title">全語数 完全制覇！</div>
+      <div class="center-sub">お疲れ様！全部の単語を学習しました。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_WORDS = [
+{"n":1,"word":"get","pos":"動詞","meaning":"得る、手に入れる","ex_en":"I ___ a new bag for school.","ex_ja":"学校用の新しいかばんをもらった。","conj":"get|got|gotten","ans":"got"},
+{"n":2,"word":"go","pos":"動詞","meaning":"行く","ex_en":"We ___ to the park every Sunday.","ex_ja":"私たちは毎週日曜日に公園に行く。","conj":"go|went|gone","ans":"go"},
+{"n":3,"word":"come","pos":"動詞","meaning":"来る","ex_en":"Please ___ to my house at 3.","ex_ja":"3時に私の家に来てください。","conj":"come|came|come","ans":"come"},
+{"n":4,"word":"make","pos":"動詞","meaning":"作る","ex_en":"She ___ dinner every night.","ex_ja":"彼女は毎晩夕食を作る。","conj":"make|made|made","ans":"makes"},
+{"n":5,"word":"take","pos":"動詞","meaning":"取る、連れて行く","ex_en":"He ___ the bus to school.","ex_ja":"彼はバスで学校に行く。","conj":"take|took|taken","ans":"takes"},
+{"n":6,"word":"know","pos":"動詞","meaning":"知っている","ex_en":"Do you ___ her name?","ex_ja":"彼女の名前を知っていますか？","conj":"know|knew|known","ans":"know"},
+{"n":7,"word":"think","pos":"動詞","meaning":"思う、考える","ex_en":"I ___ this is a good idea.","ex_ja":"これはいい考えだと思う。","conj":"think|thought|thought","ans":"think"},
+{"n":8,"word":"see","pos":"動詞","meaning":"見る、会う","ex_en":"I ___ my friends every week.","ex_ja":"毎週友達に会っている。","conj":"see|saw|seen","ans":"see"},
+{"n":9,"word":"want","pos":"動詞","meaning":"欲しい、したい","ex_en":"She ___ to be a teacher.","ex_ja":"彼女は先生になりたい。","conj":"want|wanted|wanted","ans":"wants"},
+{"n":10,"word":"give","pos":"動詞","meaning":"与える、あげる","ex_en":"He ___ me a birthday present.","ex_ja":"彼は私に誕生日プレゼントをくれた。","conj":"give|gave|given","ans":"gave"},
+{"n":11,"word":"use","pos":"動詞","meaning":"使う","ex_en":"Can I ___ your pen?","ex_ja":"あなたのペンを使ってもいいですか？","conj":"use|used|used","ans":"use"},
+{"n":12,"word":"find","pos":"動詞","meaning":"見つける","ex_en":"I can't ___ my keys.","ex_ja":"鍵が見つからない。","conj":"find|found|found","ans":"find"},
+{"n":13,"word":"tell","pos":"動詞","meaning":"話す、伝える","ex_en":"Please ___ me the way to the station.","ex_ja":"駅への道を教えてください。","conj":"tell|told|told","ans":"tell"},
+{"n":14,"word":"work","pos":"動詞","meaning":"働く","ex_en":"My father ___ at a bank.","ex_ja":"父は銀行で働いている。","conj":"work|worked|worked","ans":"works"},
+{"n":15,"word":"call","pos":"動詞","meaning":"呼ぶ、電話する","ex_en":"I will ___ you tonight.","ex_ja":"今夜電話するね。","conj":"call|called|called","ans":"call"},
+{"n":16,"word":"try","pos":"動詞","meaning":"試す","ex_en":"___ this cake. It's delicious!","ex_ja":"このケーキを食べてみて。おいしいよ！","conj":"try|tried|tried","ans":"Try"},
+{"n":17,"word":"ask","pos":"動詞","meaning":"尋ねる、頼む","ex_en":"She ___ me a question.","ex_ja":"彼女は私に質問した。","conj":"ask|asked|asked","ans":"asked"},
+{"n":18,"word":"help","pos":"動詞","meaning":"助ける、手伝う","ex_en":"Can you ___ me with my homework?","ex_ja":"宿題を手伝ってくれますか？","conj":"help|helped|helped","ans":"help"},
+{"n":19,"word":"show","pos":"動詞","meaning":"見せる","ex_en":"Please ___ me your ticket.","ex_ja":"チケットを見せてください。","conj":"show|showed|shown","ans":"show"},
+{"n":20,"word":"need","pos":"動詞","meaning":"必要とする","ex_en":"I ___ more time to finish this.","ex_ja":"これを終わらせるにはもっと時間が必要だ。","conj":"need|needed|needed","ans":"need"},
+{"n":21,"word":"feel","pos":"動詞","meaning":"感じる","ex_en":"I ___ tired today.","ex_ja":"今日は疲れを感じる。","conj":"feel|felt|felt","ans":"feel"},
+{"n":22,"word":"keep","pos":"動詞","meaning":"保つ、続ける","ex_en":"___ your room clean.","ex_ja":"部屋をきれいに保ってください。","conj":"keep|kept|kept","ans":"Keep"},
+{"n":23,"word":"leave","pos":"動詞","meaning":"去る、出発する","ex_en":"We should ___ at 8 a.m.","ex_ja":"8時に出発すべきだ。","conj":"leave|left|left","ans":"leave"},
+{"n":24,"word":"put","pos":"動詞","meaning":"置く","ex_en":"___ your bag on the desk.","ex_ja":"かばんを机の上に置いて。","conj":"put|put|put","ans":"Put"},
+{"n":25,"word":"become","pos":"動詞","meaning":"なる","ex_en":"She wants to ___ a doctor.","ex_ja":"彼女はお医者さんになりたい。","conj":"become|became|become","ans":"become"},
+{"n":26,"word":"bring","pos":"動詞","meaning":"持ってくる","ex_en":"___ an umbrella today.","ex_ja":"今日は傘を持ってきて。","conj":"bring|brought|brought","ans":"Bring"},
+{"n":27,"word":"start","pos":"動詞","meaning":"始める","ex_en":"The movie ___ at 6.","ex_ja":"映画は6時に始まる。","conj":"start|started|started","ans":"starts"},
+{"n":28,"word":"look","pos":"動詞","meaning":"見る、見える","ex_en":"___ at that beautiful flower!","ex_ja":"あの美しい花を見て！","conj":"look|looked|looked","ans":"Look"},
+{"n":29,"word":"turn","pos":"動詞","meaning":"向ける、曲がる","ex_en":"___ left at the corner.","ex_ja":"角を左に曲がってください。","conj":"turn|turned|turned","ans":"Turn"},
+{"n":30,"word":"open","pos":"動詞","meaning":"開ける","ex_en":"Please ___ the window.","ex_ja":"窓を開けてください。","conj":"open|opened|opened","ans":"open"},
+{"n":31,"word":"close","pos":"動詞","meaning":"閉める","ex_en":"Please ___ the door.","ex_ja":"ドアを閉めてください。","conj":"close|closed|closed","ans":"close"},
+{"n":32,"word":"read","pos":"動詞","meaning":"読む","ex_en":"I ___ books before bed.","ex_ja":"寝る前に本を読む。","conj":"read|read|read","ans":"read"},
+{"n":33,"word":"write","pos":"動詞","meaning":"書く","ex_en":"___ your name here.","ex_ja":"ここに名前を書いてください。","conj":"write|wrote|written","ans":"Write"},
+{"n":34,"word":"speak","pos":"動詞","meaning":"話す","ex_en":"Can you ___ English?","ex_ja":"英語を話せますか？","conj":"speak|spoke|spoken","ans":"speak"},
+{"n":35,"word":"listen","pos":"動詞","meaning":"聞く","ex_en":"___ to the music carefully.","ex_ja":"音楽をよく聞いて。","conj":"listen|listened|listened","ans":"Listen"},
+{"n":36,"word":"eat","pos":"動詞","meaning":"食べる","ex_en":"I ___ breakfast every morning.","ex_ja":"毎朝朝食を食べる。","conj":"eat|ate|eaten","ans":"eat"},
+{"n":37,"word":"drink","pos":"動詞","meaning":"飲む","ex_en":"___ more water every day.","ex_ja":"毎日もっと水を飲んで。","conj":"drink|drank|drunk","ans":"Drink"},
+{"n":38,"word":"buy","pos":"動詞","meaning":"買う","ex_en":"She ___ a new dress.","ex_ja":"彼女は新しいドレスを買った。","conj":"buy|bought|bought","ans":"bought"},
+{"n":39,"word":"run","pos":"動詞","meaning":"走る","ex_en":"He ___ every morning.","ex_ja":"彼は毎朝走る。","conj":"run|ran|run","ans":"runs"},
+{"n":40,"word":"walk","pos":"動詞","meaning":"歩く","ex_en":"Let's ___ to school today.","ex_ja":"今日は学校まで歩こう。","conj":"walk|walked|walked","ans":"walk"},
+{"n":41,"word":"play","pos":"動詞","meaning":"遊ぶ、演奏する","ex_en":"The children ___ in the park.","ex_ja":"子どもたちは公園で遊ぶ。","conj":"play|played|played","ans":"play"},
+{"n":42,"word":"learn","pos":"動詞","meaning":"学ぶ","ex_en":"I ___ French every day.","ex_ja":"毎日フランス語を学んでいる。","conj":"learn|learned|learned","ans":"learn"},
+{"n":43,"word":"study","pos":"動詞","meaning":"勉強する","ex_en":"She ___ math every day.","ex_ja":"彼女は毎日数学を勉強する。","conj":"study|studied|studied","ans":"studies"},
+{"n":44,"word":"live","pos":"動詞","meaning":"住む、生きる","ex_en":"They ___ near the sea.","ex_ja":"彼らは海の近くに住んでいる。","conj":"live|lived|lived","ans":"live"},
+{"n":45,"word":"love","pos":"動詞","meaning":"愛する、大好きだ","ex_en":"I ___ strawberry ice cream.","ex_ja":"私はいちごアイスが大好きだ。","conj":"love|loved|loved","ans":"love"},
+{"n":46,"word":"like","pos":"動詞","meaning":"好きだ","ex_en":"Do you ___ sports?","ex_ja":"スポーツは好きですか？","conj":"like|liked|liked","ans":"like"},
+{"n":47,"word":"visit","pos":"動詞","meaning":"訪れる","ex_en":"We ___ Kyoto last summer.","ex_ja":"去年の夏に京都を訪れた。","conj":"visit|visited|visited","ans":"visited"},
+{"n":48,"word":"meet","pos":"動詞","meaning":"会う","ex_en":"Nice to ___ you!","ex_ja":"はじめまして！","conj":"meet|met|met","ans":"meet"},
+{"n":49,"word":"wait","pos":"動詞","meaning":"待つ","ex_en":"Please ___ here for a moment.","ex_ja":"少しここで待ってください。","conj":"wait|waited|waited","ans":"wait"},
+{"n":50,"word":"send","pos":"動詞","meaning":"送る","ex_en":"I will ___ you an email.","ex_ja":"メールを送ります。","conj":"send|sent|sent","ans":"send"},
+{"n":51,"word":"remember","pos":"動詞","meaning":"覚えている、思い出す","ex_en":"Do you ___ her face?","ex_ja":"彼女の顔を覚えていますか？","conj":"remember|remembered|remembered","ans":"remember"},
+{"n":52,"word":"forget","pos":"動詞","meaning":"忘れる","ex_en":"Don't ___ your homework!","ex_ja":"宿題を忘れないでね！","conj":"forget|forgot|forgotten","ans":"forget"},
+{"n":53,"word":"enjoy","pos":"動詞","meaning":"楽しむ","ex_en":"I ___ swimming in summer.","ex_ja":"夏は水泳を楽しんでいる。","conj":"enjoy|enjoyed|enjoyed","ans":"enjoy"},
+{"n":54,"word":"travel","pos":"動詞","meaning":"旅行する","ex_en":"They ___ to Europe every year.","ex_ja":"彼らは毎年ヨーロッパを旅行する。","conj":"travel|traveled|traveled","ans":"travel"},
+{"n":55,"word":"ride","pos":"動詞","meaning":"乗る","ex_en":"I ___ my bike to school.","ex_ja":"自転車で学校に通っている。","conj":"ride|rode|ridden","ans":"ride"},
+{"n":56,"word":"drive","pos":"動詞","meaning":"運転する","ex_en":"My mother ___ me to school.","ex_ja":"母が車で学校に送ってくれる。","conj":"drive|drove|driven","ans":"drives"},
+{"n":57,"word":"cook","pos":"動詞","meaning":"料理する","ex_en":"My father ___ on weekends.","ex_ja":"父は週末に料理をする。","conj":"cook|cooked|cooked","ans":"cooks"},
+{"n":58,"word":"clean","pos":"動詞","meaning":"掃除する","ex_en":"Please ___ your room.","ex_ja":"部屋を掃除してください。","conj":"clean|cleaned|cleaned","ans":"clean"},
+{"n":59,"word":"sleep","pos":"動詞","meaning":"寝る","ex_en":"I ___ eight hours a day.","ex_ja":"私は1日8時間寝る。","conj":"sleep|slept|slept","ans":"sleep"},
+{"n":60,"word":"wake","pos":"動詞","meaning":"目覚める","ex_en":"I ___ up at 7 every morning.","ex_ja":"毎朝7時に起きる。","conj":"wake|woke|woken","ans":"wake"},
+{"n":61,"word":"change","pos":"動詞","meaning":"変える","ex_en":"The weather ___ suddenly.","ex_ja":"天気が急に変わった。","conj":"change|changed|changed","ans":"changed"},
+{"n":62,"word":"return","pos":"動詞","meaning":"戻る","ex_en":"She ___ home late.","ex_ja":"彼女は遅くに家に帰った。","conj":"return|returned|returned","ans":"returned"},
+{"n":63,"word":"stop","pos":"動詞","meaning":"止まる、止める","ex_en":"___ at the red light.","ex_ja":"赤信号で止まって。","conj":"stop|stopped|stopped","ans":"Stop"},
+{"n":64,"word":"check","pos":"動詞","meaning":"確認する","ex_en":"___ your answers carefully.","ex_ja":"答えをよく確認して。","conj":"check|checked|checked","ans":"Check"},
+{"n":65,"word":"save","pos":"動詞","meaning":"救う、節約する","ex_en":"She ___ a lot of money.","ex_ja":"彼女はたくさんのお金を貯めた。","conj":"save|saved|saved","ans":"saved"},
+{"n":66,"word":"join","pos":"動詞","meaning":"参加する","ex_en":"Will you ___ our club?","ex_ja":"私たちのクラブに入りませんか？","conj":"join|joined|joined","ans":"join"},
+{"n":67,"word":"choose","pos":"動詞","meaning":"選ぶ","ex_en":"___ the answer carefully.","ex_ja":"慎重に答えを選んで。","conj":"choose|chose|chosen","ans":"Choose"},
+{"n":68,"word":"carry","pos":"動詞","meaning":"運ぶ","ex_en":"Can you ___ this bag for me?","ex_ja":"このかばんを持ってくれますか？","conj":"carry|carried|carried","ans":"carry"},
+{"n":69,"word":"catch","pos":"動詞","meaning":"捕まえる","ex_en":"He ___ a big fish.","ex_ja":"彼は大きな魚を捕まえた。","conj":"catch|caught|caught","ans":"caught"},
+{"n":70,"word":"answer","pos":"動詞","meaning":"答える","ex_en":"Please ___ this question.","ex_ja":"この質問に答えてください。","conj":"answer|answered|answered","ans":"answer"},
+{"n":71,"word":"decide","pos":"動詞","meaning":"決める","ex_en":"Have you ___ your future plans?","ex_ja":"将来の計画を決めましたか？","conj":"decide|decided|decided","ans":"decided"},
+{"n":72,"word":"prepare","pos":"動詞","meaning":"準備する","ex_en":"___ for the test tonight.","ex_ja":"今夜テストの準備をして。","conj":"prepare|prepared|prepared","ans":"Prepare"},
+{"n":73,"word":"hope","pos":"動詞","meaning":"望む","ex_en":"I ___ you get well soon.","ex_ja":"早く良くなることを願っています。","conj":"hope|hoped|hoped","ans":"hope"},
+{"n":74,"word":"agree","pos":"動詞","meaning":"同意する","ex_en":"I ___ with your idea.","ex_ja":"あなたの意見に賛成です。","conj":"agree|agreed|agreed","ans":"agree"},
+{"n":75,"word":"practice","pos":"動詞","meaning":"練習する","ex_en":"___ speaking every day.","ex_ja":"毎日話す練習をして。","conj":"practice|practiced|practiced","ans":"Practice"},
+{"n":76,"word":"time","pos":"名詞","meaning":"時間","ex_en":"I don't have much ___ today.","ex_ja":"今日はあまり時間がない。","conj":"","ans":"time"},
+{"n":77,"word":"day","pos":"名詞","meaning":"日、昼間","ex_en":"What ___ is it today?","ex_ja":"今日は何曜日ですか？","conj":"","ans":"day"},
+{"n":78,"word":"year","pos":"名詞","meaning":"年","ex_en":"She is 13 ___ old.","ex_ja":"彼女は13歳です。","conj":"","ans":"years"},
+{"n":79,"word":"school","pos":"名詞","meaning":"学校","ex_en":"My ___ is very large.","ex_ja":"私の学校はとても大きい。","conj":"","ans":"school"},
+{"n":80,"word":"friend","pos":"名詞","meaning":"友達","ex_en":"She is my best ___.","ex_ja":"彼女は私の親友です。","conj":"","ans":"friend"},
+{"n":81,"word":"family","pos":"名詞","meaning":"家族","ex_en":"My ___ has five members.","ex_ja":"私の家族は5人です。","conj":"","ans":"family"},
+{"n":82,"word":"home","pos":"名詞","meaning":"家、家庭","ex_en":"I feel happy at ___.","ex_ja":"家では幸せを感じる。","conj":"","ans":"home"},
+{"n":83,"word":"place","pos":"名詞","meaning":"場所","ex_en":"This is a good ___ to rest.","ex_ja":"ここは休憩するのによい場所だ。","conj":"","ans":"place"},
+{"n":84,"word":"name","pos":"名詞","meaning":"名前","ex_en":"What's your ___?","ex_ja":"あなたの名前は何ですか？","conj":"","ans":"name"},
+{"n":85,"word":"food","pos":"名詞","meaning":"食べ物","ex_en":"Japanese ___ is delicious.","ex_ja":"日本食はおいしい。","conj":"","ans":"food"},
+{"n":86,"word":"water","pos":"名詞","meaning":"水","ex_en":"Drink more ___ every day.","ex_ja":"毎日もっと水を飲んで。","conj":"","ans":"water"},
+{"n":87,"word":"life","pos":"名詞","meaning":"生活、人生","ex_en":"City ___ is very busy.","ex_ja":"都会の生活はとても忙しい。","conj":"","ans":"life"},
+{"n":88,"word":"hand","pos":"名詞","meaning":"手","ex_en":"Please raise your ___.","ex_ja":"手を挙げてください。","conj":"","ans":"hand"},
+{"n":89,"word":"house","pos":"名詞","meaning":"家、建物","ex_en":"They live in a big ___.","ex_ja":"彼らは大きな家に住んでいる。","conj":"","ans":"house"},
+{"n":90,"word":"car","pos":"名詞","meaning":"車","ex_en":"My father drives a red ___.","ex_ja":"父は赤い車を運転している。","conj":"","ans":"car"},
+{"n":91,"word":"book","pos":"名詞","meaning":"本","ex_en":"I read this ___ last night.","ex_ja":"昨夜この本を読んだ。","conj":"","ans":"book"},
+{"n":92,"word":"music","pos":"名詞","meaning":"音楽","ex_en":"I love listening to ___.","ex_ja":"音楽を聴くのが大好きだ。","conj":"","ans":"music"},
+{"n":93,"word":"sport","pos":"名詞","meaning":"スポーツ","ex_en":"Which ___ do you like best?","ex_ja":"どのスポーツが一番好きですか？","conj":"","ans":"sport"},
+{"n":94,"word":"city","pos":"名詞","meaning":"都市","ex_en":"Tokyo is a very big ___.","ex_ja":"東京はとても大きな都市だ。","conj":"","ans":"city"},
+{"n":95,"word":"country","pos":"名詞","meaning":"国、田舎","ex_en":"Japan is a beautiful ___.","ex_ja":"日本は美しい国だ。","conj":"","ans":"country"},
+{"n":96,"word":"money","pos":"名詞","meaning":"お金","ex_en":"He saved enough ___ for a trip.","ex_ja":"旅行のために十分なお金を貯めた。","conj":"","ans":"money"},
+{"n":97,"word":"park","pos":"名詞","meaning":"公園","ex_en":"We play soccer in the ___.","ex_ja":"公園でサッカーをする。","conj":"","ans":"park"},
+{"n":98,"word":"shop","pos":"名詞","meaning":"店","ex_en":"That ___ sells nice clothes.","ex_ja":"その店はかわいい服を売っている。","conj":"","ans":"shop"},
+{"n":99,"word":"room","pos":"名詞","meaning":"部屋","ex_en":"Her ___ is clean and tidy.","ex_ja":"彼女の部屋はきれいで整頓されている。","conj":"","ans":"room"},
+{"n":100,"word":"team","pos":"名詞","meaning":"チーム","ex_en":"Our ___ won the game!","ex_ja":"私たちのチームが試合に勝った！","conj":"","ans":"team"},
+{"n":101,"word":"teacher","pos":"名詞","meaning":"先生","ex_en":"My English ___ is kind.","ex_ja":"私の英語の先生は親切だ。","conj":"","ans":"teacher"},
+{"n":102,"word":"student","pos":"名詞","meaning":"生徒","ex_en":"She is a junior high school ___.","ex_ja":"彼女は中学生です。","conj":"","ans":"student"},
+{"n":103,"word":"job","pos":"名詞","meaning":"仕事","ex_en":"What's your dream ___?","ex_ja":"あなたの夢の仕事は何ですか？","conj":"","ans":"job"},
+{"n":104,"word":"word","pos":"名詞","meaning":"単語","ex_en":"I learn 25 ___ every day.","ex_ja":"毎日25語を覚えている。","conj":"","ans":"words"},
+{"n":105,"word":"letter","pos":"名詞","meaning":"手紙、文字","ex_en":"I wrote a ___ to my grandmother.","ex_ja":"祖母に手紙を書いた。","conj":"","ans":"letter"},
+{"n":106,"word":"question","pos":"名詞","meaning":"質問","ex_en":"Do you have any ___?","ex_ja":"質問はありますか？","conj":"","ans":"questions"},
+{"n":107,"word":"idea","pos":"名詞","meaning":"考え、アイデア","ex_en":"That's a great ___!","ex_ja":"それはいいアイデアだ！","conj":"","ans":"idea"},
+{"n":108,"word":"problem","pos":"名詞","meaning":"問題","ex_en":"There's a big ___ here.","ex_ja":"ここに大きな問題がある。","conj":"","ans":"problem"},
+{"n":109,"word":"dream","pos":"名詞","meaning":"夢","ex_en":"My ___ is to travel the world.","ex_ja":"私の夢は世界旅行をすることだ。","conj":"","ans":"dream"},
+{"n":110,"word":"story","pos":"名詞","meaning":"話、物語","ex_en":"Tell me a funny ___.","ex_ja":"面白い話を聞かせて。","conj":"","ans":"story"},
+{"n":111,"word":"trip","pos":"名詞","meaning":"旅行","ex_en":"We had a fun ___ last summer.","ex_ja":"去年の夏、楽しい旅行をした。","conj":"","ans":"trip"},
+{"n":112,"word":"holiday","pos":"名詞","meaning":"休日","ex_en":"What do you do on ___?","ex_ja":"休日には何をしますか？","conj":"","ans":"holidays"},
+{"n":113,"word":"season","pos":"名詞","meaning":"季節","ex_en":"Summer is my favorite ___.","ex_ja":"夏は私の好きな季節だ。","conj":"","ans":"season"},
+{"n":114,"word":"weather","pos":"名詞","meaning":"天気","ex_en":"How's the ___ today?","ex_ja":"今日の天気はどうですか？","conj":"","ans":"weather"},
+{"n":115,"word":"mountain","pos":"名詞","meaning":"山","ex_en":"Mt. Fuji is a beautiful ___.","ex_ja":"富士山は美しい山だ。","conj":"","ans":"mountain"},
+{"n":116,"word":"river","pos":"名詞","meaning":"川","ex_en":"The ___ is very long.","ex_ja":"その川はとても長い。","conj":"","ans":"river"},
+{"n":117,"word":"sea","pos":"名詞","meaning":"海","ex_en":"I love swimming in the ___.","ex_ja":"海で泳ぐのが大好きだ。","conj":"","ans":"sea"},
+{"n":118,"word":"flower","pos":"名詞","meaning":"花","ex_en":"These ___ are beautiful.","ex_ja":"この花たちは美しい。","conj":"","ans":"flowers"},
+{"n":119,"word":"animal","pos":"名詞","meaning":"動物","ex_en":"What's your favorite ___?","ex_ja":"好きな動物は何ですか？","conj":"","ans":"animal"},
+{"n":120,"word":"dog","pos":"名詞","meaning":"犬","ex_en":"I have a small white ___.","ex_ja":"私は小さな白い犬を飼っている。","conj":"","ans":"dog"},
+{"n":121,"word":"cat","pos":"名詞","meaning":"猫","ex_en":"Her ___ is very cute.","ex_ja":"彼女の猫はとてもかわいい。","conj":"","ans":"cat"},
+{"n":122,"word":"bird","pos":"名詞","meaning":"鳥","ex_en":"A ___ is singing in the tree.","ex_ja":"木の中で鳥が鳴いている。","conj":"","ans":"bird"},
+{"n":123,"word":"fish","pos":"名詞","meaning":"魚","ex_en":"I like to eat ___.","ex_ja":"私は魚を食べるのが好きだ。","conj":"","ans":"fish"},
+{"n":124,"word":"club","pos":"名詞","meaning":"クラブ、部活","ex_en":"I'm in the basketball ___.","ex_ja":"私はバスケットボール部に入っている。","conj":"","ans":"club"},
+{"n":125,"word":"game","pos":"名詞","meaning":"ゲーム、試合","ex_en":"We won the ___ yesterday!","ex_ja":"昨日の試合に勝った！","conj":"","ans":"game"},
+{"n":126,"word":"good","pos":"形容詞","meaning":"良い","ex_en":"You did a ___ job!","ex_ja":"よくできました！","conj":"","ans":"good"},
+{"n":127,"word":"new","pos":"形容詞","meaning":"新しい","ex_en":"I got a ___ phone.","ex_ja":"新しいスマホを買ってもらった。","conj":"","ans":"new"},
+{"n":128,"word":"great","pos":"形容詞","meaning":"すばらしい","ex_en":"That's a ___ idea!","ex_ja":"それはすばらしい考えだ！","conj":"","ans":"great"},
+{"n":129,"word":"important","pos":"形容詞","meaning":"重要な","ex_en":"Sleep is very ___ for health.","ex_ja":"睡眠は健康にとても重要だ。","conj":"","ans":"important"},
+{"n":130,"word":"different","pos":"形容詞","meaning":"異なる","ex_en":"Each country has ___ food.","ex_ja":"それぞれの国に異なる食べ物がある。","conj":"","ans":"different"},
+{"n":131,"word":"large","pos":"形容詞","meaning":"大きい","ex_en":"They have a ___ garden.","ex_ja":"彼らは大きな庭を持っている。","conj":"","ans":"large"},
+{"n":132,"word":"small","pos":"形容詞","meaning":"小さい","ex_en":"She has a ___ cat.","ex_ja":"彼女は小さな猫を飼っている。","conj":"","ans":"small"},
+{"n":133,"word":"young","pos":"形容詞","meaning":"若い","ex_en":"He's a ___ and talented player.","ex_ja":"彼は若くて才能あるプレーヤーだ。","conj":"","ans":"young"},
+{"n":134,"word":"old","pos":"形容詞","meaning":"古い、年老いた","ex_en":"This temple is very ___.","ex_ja":"このお寺はとても古い。","conj":"","ans":"old"},
+{"n":135,"word":"long","pos":"形容詞","meaning":"長い","ex_en":"She has ___ hair.","ex_ja":"彼女は長い髪をしている。","conj":"","ans":"long"},
+{"n":136,"word":"short","pos":"形容詞","meaning":"短い、背が低い","ex_en":"The summer vacation is too ___!","ex_ja":"夏休みは短すぎる！","conj":"","ans":"short"},
+{"n":137,"word":"easy","pos":"形容詞","meaning":"簡単な","ex_en":"This test was very ___.","ex_ja":"このテストはとても簡単だった。","conj":"","ans":"easy"},
+{"n":138,"word":"difficult","pos":"形容詞","meaning":"難しい","ex_en":"Math is ___ for me.","ex_ja":"数学は私には難しい。","conj":"","ans":"difficult"},
+{"n":139,"word":"busy","pos":"形容詞","meaning":"忙しい","ex_en":"She is very ___ today.","ex_ja":"彼女は今日とても忙しい。","conj":"","ans":"busy"},
+{"n":140,"word":"free","pos":"形容詞","meaning":"自由な、暇な","ex_en":"Are you ___ this Sunday?","ex_ja":"今週の日曜日は暇ですか？","conj":"","ans":"free"},
+{"n":141,"word":"happy","pos":"形容詞","meaning":"幸せな","ex_en":"I'm so ___ to hear that!","ex_ja":"それを聞いてとても嬉しい！","conj":"","ans":"happy"},
+{"n":142,"word":"sad","pos":"形容詞","meaning":"悲しい","ex_en":"I felt ___ about the news.","ex_ja":"そのニュースを聞いて悲しかった。","conj":"","ans":"sad"},
+{"n":143,"word":"beautiful","pos":"形容詞","meaning":"美しい","ex_en":"The sunset was ___.","ex_ja":"夕日がきれいだった。","conj":"","ans":"beautiful"},
+{"n":144,"word":"popular","pos":"形容詞","meaning":"人気のある","ex_en":"This singer is very ___.","ex_ja":"この歌手はとても人気がある。","conj":"","ans":"popular"},
+{"n":145,"word":"interesting","pos":"形容詞","meaning":"おもしろい","ex_en":"This book is very ___.","ex_ja":"この本はとても面白い。","conj":"","ans":"interesting"},
+{"n":146,"word":"excited","pos":"形容詞","meaning":"興奮した","ex_en":"I'm ___ about the trip!","ex_ja":"旅行がとても楽しみだ！","conj":"","ans":"excited"},
+{"n":147,"word":"tired","pos":"形容詞","meaning":"疲れた","ex_en":"I'm ___ after the game.","ex_ja":"試合の後は疲れた。","conj":"","ans":"tired"},
+{"n":148,"word":"sick","pos":"形容詞","meaning":"病気の","ex_en":"She stayed home because she was ___.","ex_ja":"彼女は病気で家にいた。","conj":"","ans":"sick"},
+{"n":149,"word":"strong","pos":"形容詞","meaning":"強い","ex_en":"He is ___ and fast.","ex_ja":"彼は強くて速い。","conj":"","ans":"strong"},
+{"n":150,"word":"wonderful","pos":"形容詞","meaning":"すばらしい","ex_en":"We had a ___ time!","ex_ja":"すばらしい時間を過ごした！","conj":"","ans":"wonderful"},
+{"n":151,"word":"usually","pos":"副詞","meaning":"たいてい","ex_en":"I ___ wake up at 7.","ex_ja":"たいてい7時に起きる。","conj":"","ans":"usually"},
+{"n":152,"word":"often","pos":"副詞","meaning":"しばしば","ex_en":"She ___ reads books.","ex_ja":"彼女はよく本を読む。","conj":"","ans":"often"},
+{"n":153,"word":"always","pos":"副詞","meaning":"いつも","ex_en":"I ___ brush my teeth before bed.","ex_ja":"寝る前にはいつも歯を磨く。","conj":"","ans":"always"},
+{"n":154,"word":"never","pos":"副詞","meaning":"決して〜ない","ex_en":"I ___ eat fast food.","ex_ja":"ファストフードは絶対に食べない。","conj":"","ans":"never"},
+{"n":155,"word":"sometimes","pos":"副詞","meaning":"ときどき","ex_en":"I ___ cook dinner.","ex_ja":"ときどき夕食を作る。","conj":"","ans":"sometimes"},
+{"n":156,"word":"already","pos":"副詞","meaning":"もう、すでに","ex_en":"I've ___ finished my homework.","ex_ja":"もう宿題は終わった。","conj":"","ans":"already"},
+{"n":157,"word":"still","pos":"副詞","meaning":"まだ","ex_en":"Are you ___ hungry?","ex_ja":"まだお腹が空いていますか？","conj":"","ans":"still"},
+{"n":158,"word":"again","pos":"副詞","meaning":"また、再び","ex_en":"Please say that ___.","ex_ja":"もう一度言ってください。","conj":"","ans":"again"},
+{"n":159,"word":"together","pos":"副詞","meaning":"一緒に","ex_en":"Let's study ___ tonight.","ex_ja":"今夜一緒に勉強しよう。","conj":"","ans":"together"},
+{"n":160,"word":"enough","pos":"副詞","meaning":"十分に","ex_en":"I don't have ___ money.","ex_ja":"十分なお金がない。","conj":"","ans":"enough"},
+{"n":161,"word":"really","pos":"副詞","meaning":"本当に","ex_en":"I ___ like this song!","ex_ja":"この曲が本当に好き！","conj":"","ans":"really"},
+{"n":162,"word":"very","pos":"副詞","meaning":"とても","ex_en":"She is ___ kind.","ex_ja":"彼女はとても親切だ。","conj":"","ans":"very"},
+{"n":163,"word":"too","pos":"副詞","meaning":"〜すぎる","ex_en":"This bag is ___ expensive.","ex_ja":"このかばんは高すぎる。","conj":"","ans":"too"},
+{"n":164,"word":"quite","pos":"副詞","meaning":"かなり","ex_en":"The test was ___ hard.","ex_ja":"テストはかなり難しかった。","conj":"","ans":"quite"},
+{"n":165,"word":"almost","pos":"副詞","meaning":"ほとんど","ex_en":"I ___ forgot my keys!","ex_ja":"鍵を忘れるところだった！","conj":"","ans":"almost"},
+{"n":166,"word":"only","pos":"副詞","meaning":"だけ、しか","ex_en":"I have ___ one brother.","ex_ja":"兄弟は一人だけだ。","conj":"","ans":"only"},
+{"n":167,"word":"just","pos":"副詞","meaning":"ちょうど","ex_en":"I ___ got home.","ex_ja":"ちょうど家に帰ったところだ。","conj":"","ans":"just"},
+{"n":168,"word":"soon","pos":"副詞","meaning":"もうすぐ","ex_en":"Dinner will be ready ___.","ex_ja":"もうすぐ夕食ができる。","conj":"","ans":"soon"},
+{"n":169,"word":"early","pos":"副詞","meaning":"早く","ex_en":"Please come ___ tomorrow.","ex_ja":"明日は早く来てください。","conj":"","ans":"early"},
+{"n":170,"word":"late","pos":"副詞","meaning":"遅く","ex_en":"Don't stay up too ___.","ex_ja":"遅くまで起きていてはだめ。","conj":"","ans":"late"},
+{"n":171,"word":"fast","pos":"副詞","meaning":"速く","ex_en":"He runs very ___.","ex_ja":"彼はとても速く走る。","conj":"","ans":"fast"},
+{"n":172,"word":"slowly","pos":"副詞","meaning":"ゆっくりと","ex_en":"Please speak more ___.","ex_ja":"もっとゆっくり話してください。","conj":"","ans":"slowly"},
+{"n":173,"word":"carefully","pos":"副詞","meaning":"注意深く","ex_en":"Drive ___ on rainy days.","ex_ja":"雨の日は注意深く運転して。","conj":"","ans":"carefully"},
+{"n":174,"word":"hard","pos":"副詞","meaning":"一生懸命に","ex_en":"She studied ___ for the exam.","ex_ja":"彼女は試験のために懸命に勉強した。","conj":"","ans":"hard"},
+{"n":175,"word":"outside","pos":"副詞","meaning":"外に","ex_en":"The kids are playing ___.","ex_ja":"子どもたちは外で遊んでいる。","conj":"","ans":"outside"},
+{"n":176,"word":"station","pos":"名詞","meaning":"駅","ex_en":"The ___ is near here.","ex_ja":"駅はここの近くにある。","conj":"","ans":"station"},
+{"n":177,"word":"hospital","pos":"名詞","meaning":"病院","ex_en":"He works at a ___.","ex_ja":"彼は病院で働いている。","conj":"","ans":"hospital"},
+{"n":178,"word":"library","pos":"名詞","meaning":"図書館","ex_en":"I study at the ___.","ex_ja":"図書館で勉強している。","conj":"","ans":"library"},
+{"n":179,"word":"restaurant","pos":"名詞","meaning":"レストラン","ex_en":"Let's eat at that ___.","ex_ja":"あのレストランで食べよう。","conj":"","ans":"restaurant"},
+{"n":180,"word":"airport","pos":"名詞","meaning":"空港","ex_en":"The ___ is far from the city.","ex_ja":"空港は市内から遠い。","conj":"","ans":"airport"},
+{"n":181,"word":"hotel","pos":"名詞","meaning":"ホテル","ex_en":"We stayed at a nice ___.","ex_ja":"素敵なホテルに泊まった。","conj":"","ans":"hotel"},
+{"n":182,"word":"museum","pos":"名詞","meaning":"博物館","ex_en":"The ___ is free on Mondays.","ex_ja":"博物館は月曜日は無料だ。","conj":"","ans":"museum"},
+{"n":183,"word":"garden","pos":"名詞","meaning":"庭","ex_en":"She grows roses in her ___.","ex_ja":"彼女は庭でバラを育てている。","conj":"","ans":"garden"},
+{"n":184,"word":"forest","pos":"名詞","meaning":"森","ex_en":"We walked through the ___.","ex_ja":"私たちは森の中を歩いた。","conj":"","ans":"forest"},
+{"n":185,"word":"beach","pos":"名詞","meaning":"浜辺","ex_en":"Let's go to the ___ this summer!","ex_ja":"今年の夏は海岸に行こう！","conj":"","ans":"beach"},
+{"n":186,"word":"bridge","pos":"名詞","meaning":"橋","ex_en":"This ___ is 200 years old.","ex_ja":"この橋は築200年だ。","conj":"","ans":"bridge"},
+{"n":187,"word":"street","pos":"名詞","meaning":"通り","ex_en":"Our school is on this ___.","ex_ja":"私たちの学校はこの通りにある。","conj":"","ans":"street"},
+{"n":188,"word":"corner","pos":"名詞","meaning":"角","ex_en":"Turn right at the next ___.","ex_ja":"次の角を右に曲がって。","conj":"","ans":"corner"},
+{"n":189,"word":"window","pos":"名詞","meaning":"窓","ex_en":"Open the ___ for some air.","ex_ja":"空気のために窓を開けて。","conj":"","ans":"window"},
+{"n":190,"word":"door","pos":"名詞","meaning":"ドア","ex_en":"Don't forget to lock the ___.","ex_ja":"ドアに鍵をかけるのを忘れずに。","conj":"","ans":"door"},
+{"n":191,"word":"floor","pos":"名詞","meaning":"床、階","ex_en":"The bathroom is on the third ___.","ex_ja":"バスルームは3階にある。","conj":"","ans":"floor"},
+{"n":192,"word":"wall","pos":"名詞","meaning":"壁","ex_en":"There are pictures on the ___.","ex_ja":"壁に絵が飾ってある。","conj":"","ans":"wall"},
+{"n":193,"word":"table","pos":"名詞","meaning":"テーブル","ex_en":"Put the plates on the ___.","ex_ja":"皿をテーブルの上に置いて。","conj":"","ans":"table"},
+{"n":194,"word":"chair","pos":"名詞","meaning":"椅子","ex_en":"Please have a seat in this ___.","ex_ja":"どうぞこの椅子にお座りください。","conj":"","ans":"chair"},
+{"n":195,"word":"bed","pos":"名詞","meaning":"ベッド","ex_en":"I usually go to ___ at 10.","ex_ja":"たいてい10時に寝る。","conj":"","ans":"bed"},
+{"n":196,"word":"bag","pos":"名詞","meaning":"かばん、袋","ex_en":"She has a red ___.","ex_ja":"彼女は赤いかばんを持っている。","conj":"","ans":"bag"},
+{"n":197,"word":"key","pos":"名詞","meaning":"鍵","ex_en":"I lost my house ___!","ex_ja":"家の鍵をなくした！","conj":"","ans":"key"},
+{"n":198,"word":"morning","pos":"名詞","meaning":"朝","ex_en":"I exercise every ___.","ex_ja":"毎朝運動している。","conj":"","ans":"morning"},
+{"n":199,"word":"afternoon","pos":"名詞","meaning":"午後","ex_en":"Let's meet this ___.","ex_ja":"今日の午後に会いましょう。","conj":"","ans":"afternoon"},
+{"n":200,"word":"evening","pos":"名詞","meaning":"夕方","ex_en":"The sky is red in the ___.","ex_ja":"夕方は空が赤くなる。","conj":"","ans":"evening"},
+{"n":201,"word":"night","pos":"名詞","meaning":"夜","ex_en":"I study at ___.","ex_ja":"夜に勉強している。","conj":"","ans":"night"},
+{"n":202,"word":"week","pos":"名詞","meaning":"週","ex_en":"I have club activities twice a ___.","ex_ja":"週に2回部活がある。","conj":"","ans":"week"},
+{"n":203,"word":"month","pos":"名詞","meaning":"月","ex_en":"Her birthday is next ___.","ex_ja":"彼女の誕生日は来月だ。","conj":"","ans":"month"},
+{"n":204,"word":"hour","pos":"名詞","meaning":"時間（1時間）","ex_en":"The trip takes about three ___.","ex_ja":"旅行は約3時間かかる。","conj":"","ans":"hours"},
+{"n":205,"word":"minute","pos":"名詞","meaning":"分","ex_en":"Wait for five ___, please.","ex_ja":"5分間待ってください。","conj":"","ans":"minutes"},
+{"n":206,"word":"spring","pos":"名詞","meaning":"春","ex_en":"Cherry blossoms bloom in ___.","ex_ja":"春には桜が咲く。","conj":"","ans":"spring"},
+{"n":207,"word":"summer","pos":"名詞","meaning":"夏","ex_en":"It is very hot in ___.","ex_ja":"夏はとても暑い。","conj":"","ans":"summer"},
+{"n":208,"word":"autumn","pos":"名詞","meaning":"秋","ex_en":"The leaves turn red in ___.","ex_ja":"秋には葉っぱが赤くなる。","conj":"","ans":"autumn"},
+{"n":209,"word":"winter","pos":"名詞","meaning":"冬","ex_en":"It snows a lot in ___ here.","ex_ja":"ここでは冬によく雪が降る。","conj":"","ans":"winter"},
+{"n":210,"word":"snow","pos":"名詞","meaning":"雪","ex_en":"I love playing in the ___.","ex_ja":"雪の中で遊ぶのが好きだ。","conj":"","ans":"snow"},
+{"n":211,"word":"rain","pos":"名詞","meaning":"雨","ex_en":"Don't forget your umbrella in the ___.","ex_ja":"雨の日は傘を忘れずに。","conj":"","ans":"rain"},
+{"n":212,"word":"wind","pos":"名詞","meaning":"風","ex_en":"The ___ is very strong today.","ex_ja":"今日は風がとても強い。","conj":"","ans":"wind"},
+{"n":213,"word":"sky","pos":"名詞","meaning":"空","ex_en":"The ___ is clear today.","ex_ja":"今日は空がきれいだ。","conj":"","ans":"sky"},
+{"n":214,"word":"sun","pos":"名詞","meaning":"太陽","ex_en":"The ___ rises in the east.","ex_ja":"太陽は東から昇る。","conj":"","ans":"sun"},
+{"n":215,"word":"moon","pos":"名詞","meaning":"月（天体）","ex_en":"The ___ looks beautiful tonight.","ex_ja":"今夜の月が美しい。","conj":"","ans":"moon"},
+{"n":216,"word":"star","pos":"名詞","meaning":"星","ex_en":"I can see many ___ at night.","ex_ja":"夜はたくさんの星が見える。","conj":"","ans":"stars"},
+{"n":217,"word":"tree","pos":"名詞","meaning":"木","ex_en":"There are big ___ in the park.","ex_ja":"公園には大きな木がある。","conj":"","ans":"trees"},
+{"n":218,"word":"grass","pos":"名詞","meaning":"草","ex_en":"We sat on the ___.","ex_ja":"私たちは草の上に座った。","conj":"","ans":"grass"},
+{"n":219,"word":"air","pos":"名詞","meaning":"空気","ex_en":"The mountain ___ is so fresh!","ex_ja":"山の空気はとても新鮮だ！","conj":"","ans":"air"},
+{"n":220,"word":"ground","pos":"名詞","meaning":"地面","ex_en":"Sit down on the ___.","ex_ja":"地面に座って。","conj":"","ans":"ground"},
+{"n":221,"word":"boy","pos":"名詞","meaning":"男の子","ex_en":"That ___ is very tall.","ex_ja":"あの男の子はとても背が高い。","conj":"","ans":"boy"},
+{"n":222,"word":"girl","pos":"名詞","meaning":"女の子","ex_en":"The ___ can sing very well.","ex_ja":"その女の子はとても上手に歌える。","conj":"","ans":"girl"},
+{"n":223,"word":"man","pos":"名詞","meaning":"男性","ex_en":"That ___ is my uncle.","ex_ja":"あの男性は私のおじだ。","conj":"","ans":"man"},
+{"n":224,"word":"woman","pos":"名詞","meaning":"女性","ex_en":"The ___ in red is my mother.","ex_ja":"赤い服の女性が私の母だ。","conj":"","ans":"woman"},
+{"n":225,"word":"child","pos":"名詞","meaning":"子ども","ex_en":"The ___ are playing.","ex_ja":"子どもたちが遊んでいる。","conj":"","ans":"children"},
+{"n":226,"word":"people","pos":"名詞","meaning":"人々","ex_en":"Many ___ visited the park.","ex_ja":"多くの人々が公園を訪れた。","conj":"","ans":"people"},
+{"n":227,"word":"class","pos":"名詞","meaning":"クラス、授業","ex_en":"Our ___ has 30 students.","ex_ja":"私たちのクラスは30人だ。","conj":"","ans":"class"},
+{"n":228,"word":"test","pos":"名詞","meaning":"テスト","ex_en":"We have a ___ tomorrow.","ex_ja":"明日テストがある。","conj":"","ans":"test"},
+{"n":229,"word":"score","pos":"名詞","meaning":"点数","ex_en":"I got a high ___ on the test.","ex_ja":"テストで高い点数を取った。","conj":"","ans":"score"},
+{"n":230,"word":"news","pos":"名詞","meaning":"ニュース","ex_en":"Did you watch the ___ last night?","ex_ja":"昨夜ニュースを見ましたか？","conj":"","ans":"news"},
+{"n":231,"word":"ticket","pos":"名詞","meaning":"チケット","ex_en":"I bought two concert ___.","ex_ja":"コンサートのチケットを2枚買った。","conj":"","ans":"tickets"},
+{"n":232,"word":"prize","pos":"名詞","meaning":"賞","ex_en":"She won first ___!","ex_ja":"彼女が1位を取った！","conj":"","ans":"prize"},
+{"n":233,"word":"event","pos":"名詞","meaning":"イベント","ex_en":"There's a big ___ this weekend.","ex_ja":"今週末大きなイベントがある。","conj":"","ans":"event"},
+{"n":234,"word":"message","pos":"名詞","meaning":"メッセージ","ex_en":"He left a ___ for you.","ex_ja":"彼があなたへのメッセージを残した。","conj":"","ans":"message"},
+{"n":235,"word":"language","pos":"名詞","meaning":"言語","ex_en":"She can speak three ___.","ex_ja":"彼女は3つの言語を話せる。","conj":"","ans":"languages"},
+{"n":236,"word":"culture","pos":"名詞","meaning":"文化","ex_en":"Japan has a rich ___.","ex_ja":"日本には豊かな文化がある。","conj":"","ans":"culture"},
+{"n":237,"word":"history","pos":"名詞","meaning":"歴史","ex_en":"I love studying ___.","ex_ja":"歴史を勉強するのが好きだ。","conj":"","ans":"history"},
+{"n":238,"word":"future","pos":"名詞","meaning":"未来","ex_en":"What will the ___ be like?","ex_ja":"未来はどんなものになるだろう？","conj":"","ans":"future"},
+{"n":239,"word":"idea","pos":"名詞","meaning":"考え、アイデア","ex_en":"That's a great ___!","ex_ja":"それはいいアイデアだ！","conj":"","ans":"idea"},
+{"n":240,"word":"dream","pos":"名詞","meaning":"夢","ex_en":"My ___ is to travel the world.","ex_ja":"私の夢は世界旅行をすることだ。","conj":"","ans":"dream"},
+{"n":241,"word":"trip","pos":"名詞","meaning":"旅行","ex_en":"We had a fun ___ last year.","ex_ja":"去年、楽しい旅行をした。","conj":"","ans":"trip"},
+{"n":242,"word":"club","pos":"名詞","meaning":"クラブ、部活","ex_en":"I'm in the tennis ___.","ex_ja":"私はテニス部に入っている。","conj":"","ans":"club"},
+{"n":243,"word":"sport","pos":"名詞","meaning":"スポーツ","ex_en":"My favorite ___ is soccer.","ex_ja":"好きなスポーツはサッカーだ。","conj":"","ans":"sport"},
+{"n":244,"word":"team","pos":"名詞","meaning":"チーム","ex_en":"Our ___ works well together.","ex_ja":"私たちのチームはうまく連携している。","conj":"","ans":"team"},
+{"n":245,"word":"member","pos":"名詞","meaning":"メンバー","ex_en":"All ___ should attend.","ex_ja":"全メンバーが出席すべきだ。","conj":"","ans":"members"},
+{"n":246,"word":"meeting","pos":"名詞","meaning":"会議","ex_en":"The ___ starts at 3 p.m.","ex_ja":"会議は午後3時に始まる。","conj":"","ans":"meeting"},
+{"n":247,"word":"speech","pos":"名詞","meaning":"スピーチ","ex_en":"She gave a great ___.","ex_ja":"彼女はすばらしいスピーチをした。","conj":"","ans":"speech"},
+{"n":248,"word":"report","pos":"名詞","meaning":"レポート","ex_en":"Write a short ___ about it.","ex_ja":"それについて短いレポートを書いて。","conj":"","ans":"report"},
+{"n":249,"word":"project","pos":"名詞","meaning":"プロジェクト","ex_en":"Our group ___ is due Friday.","ex_ja":"グループのプロジェクトは金曜日が締め切りだ。","conj":"","ans":"project"},
+{"n":250,"word":"subject","pos":"名詞","meaning":"科目、話題","ex_en":"My favorite ___ is English.","ex_ja":"好きな科目は英語だ。","conj":"","ans":"subject"}
+];
+
+function make3sg(w){
+  if(/[^aeiou]y$/.test(w)) return w.slice(0,-1)+'ies';
+  if(/(s|sh|ch|x|o)$/.test(w)) return w+'es';
+  return w+'s';
+}
+function makePlural(w){
+  if(w==='child') return 'children';
+  if(w==='man') return 'men';
+  if(w==='woman') return 'women';
+  if(w==='fish'||w==='sheep'||w==='deer') return w;
+  if(/[^aeiou]y$/.test(w)) return w.slice(0,-1)+'ies';
+  if(/(s|sh|ch|x)$/.test(w)) return w+'es';
+  return w+'s';
+}
+function detectFormType(cw,ans,conj,pos){
+  if(!ans||ans.toLowerCase()===cw.toLowerCase()) return {type:'base'};
+  if(conj){const f=conj.split('|');
+    if(ans.toLowerCase()===f[0].toLowerCase()) return {type:'conj',idx:0};
+    if(f[1]&&ans.toLowerCase()===f[1].toLowerCase()) return {type:'conj',idx:1};
+    if(f[2]&&ans.toLowerCase()===f[2].toLowerCase()) return {type:'conj',idx:2};
+  }
+  if(pos==='動詞'&&(ans===make3sg(cw)||ans===make3sg(cw).replace(/^./,c=>c.toUpperCase()))) return {type:'3sg'};
+  if(pos==='名詞'&&ans===makePlural(cw)) return {type:'plural'};
+  return {type:'base'};
+}
+function applyForm(d,fi){
+  const w=d.word,c=d.conj||'',p=d.pos;
+  if(fi.type==='conj'){const f=c.split('|');return f[fi.idx]||w;}
+  if(fi.type==='3sg'&&p==='動詞') return make3sg(w);
+  if(fi.type==='plural'&&p==='名詞') return makePlural(w);
+  return w;
+}
+function getDistractors(w,n){
+  const fi=detectFormType(w.word,w.ans,w.conj||'',w.pos);
+  const sp=ALL_WORDS.filter(x=>x.word!==w.word&&x.pos===w.pos);
+  const pool=sp.length>=n?sp:ALL_WORDS.filter(x=>x.word!==w.word);
+  return [...pool].sort(()=>Math.random()-.5).slice(0,n).map(d=>d.pos===w.pos?applyForm(d,fi):d.word);
+}
+// Levenshtein distance for fuzzy matching
+function lev(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+function isClose(heard,expected){
+  const h=heard.toLowerCase().trim(),e=expected.toLowerCase().trim();
+  if(h===e) return true;
+  if(h.includes(e)||e.includes(h)) return true;
+  return lev(h,e)<=Math.max(1,Math.floor(e.length/3));
+}
+
+
+const START=new Date("2026-04-20T00:00:00"),PER_DAY=25,MAX_W=1200;
+const PC={"動詞":"#50c878","名詞":"#5b8dee","形容詞":"#f5a623","副詞":"#c97bf5","前置詞":"#f07878","接続詞":"#78d4f0"};
+const CL=["原形","過去形","過去分詞"],SRS_KEY="eiken3_srs_v3",HIST_KEY="eiken3_hist_v1";
+
+function loadSRS(){try{return JSON.parse(localStorage.getItem(SRS_KEY)||"{}")}catch(e){return{}}}
+function saveSRS(d){try{localStorage.setItem(SRS_KEY,JSON.stringify(d))}catch(e){}}
+function loadHist(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]")}catch(e){return[]}}
+function addDays(s,n){const d=new Date(s+"T00:00:00");d.setDate(d.getDate()+n);return d.toISOString().split("T")[0]}
+function todayStr(){return new Date().toISOString().split("T")[0]}
+
+function recordResult(n,ok){
+  const srs=loadSRS(),rec=srs[n]||{wrong:0,interval:1,nextDate:null};
+  if(ok){rec.interval=Math.min(rec.interval*2,30);rec.nextDate=addDays(todayStr(),rec.interval);}
+  else{rec.wrong=(rec.wrong||0)+1;rec.interval=Math.max(1,Math.ceil(3/rec.wrong));rec.nextDate=addDays(todayStr(),rec.interval);}
+  srs[n]=rec;saveSRS(srs);
+}
+function getReviewWords(d){
+  const srs=loadSRS();
+  return Object.entries(srs).filter(([,r])=>r.nextDate&&r.nextDate<=d&&r.wrong>0)
+    .map(([n])=>ALL_WORDS.find(w=>w.n===parseInt(n))).filter(Boolean);
+}
+function saveScore(dateStr,day,correct,total,rate){
+  const hist=loadHist(),idx=hist.findIndex(h=>h.date===dateStr);
+  const rec={date:dateStr,day,correct,total,rate};
+  if(idx>=0){if(rate>=hist[idx].rate)hist[idx]=rec;}else hist.push(rec);
+  hist.sort((a,b)=>a.date.localeCompare(b.date));
+  try{localStorage.setItem(HIST_KEY,JSON.stringify(hist))}catch(e){}
+}
+function rateColor(r){return r>=80?"#50c878":r>=60?"#f5a623":"#e06060"}
+
+let dayWords=[],wordIdx=0,quizQueue=[],quizIdx=0,qCorrect=0,qWrong=0,curDate="2026-04-20",qAnswered=false;
+function dateToDay(s){const d=new Date(s+"T00:00:00");return Math.max(1,Math.floor((d-START)/86400000)+1)}
+
+function showView(id){
+  ["modeSelectView","statsView","wordCardView","conjCardView","quizCardView","summaryView","noDataView","completeView"]
+    .forEach(v=>document.getElementById(v).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function setMode(m){
+  const mb=document.getElementById("modeBadge");
+  if(m==="quiz"){mb.textContent="クイズ";mb.className="mode-badge mode-quiz";}
+  else{mb.textContent="学習";mb.className="mode-badge mode-study";}
+}
+function updProgress(cur,tot,posKey){
+  const acc=PC[posKey]||"#7c77d1",pct=tot>0?(cur/tot)*100:0;
+  const pf=document.getElementById("progressFill");
+  pf.style.width=pct+"%";pf.style.background=`linear-gradient(90deg,#3a36a8,${acc})`;
+  const ct=document.getElementById("counter");ct.textContent=cur+" / "+tot;ct.classList.remove("hidden");
+}
+
+// ── 単語カード ──────────────────────────────────
+function renderWord(){
+  const w=dayWords[wordIdx],acc=PC[w.pos]||"#7c77d1";
+  document.getElementById("glowEl").style.background=`radial-gradient(circle,${acc}18 0%,transparent 70%)`;
+  document.getElementById("wordCard").style.borderColor=acc+"28";
+  document.getElementById("wordNum").textContent="#"+w.n;
+  const pb=document.getElementById("posBadge");pb.textContent=w.pos;pb.style.background=acc+"22";pb.style.color=acc;
+  document.getElementById("wordEn").textContent=w.word;
+  const wj=document.getElementById("wordJa");wj.style.color=acc;wj.textContent=w.meaning;
+  document.getElementById("exEn").textContent=w.ex_en.replace(/___/g,w.ans||w.word);
+  document.getElementById("exJa").textContent=w.ex_ja;
+  document.getElementById("prevBtn").disabled=(wordIdx===0);
+  const nb=document.getElementById("nextBtn");
+  const hc=w.conj&&w.conj.length>0;
+  if(hc){nb.textContent="活用形を見る →";nb.className="nav-btn nb-conj";}
+  else if(wordIdx===dayWords.length-1){nb.textContent="クイズへ進む →";nb.className="nav-btn nb-quiz";}
+  else{nb.textContent="次の単語 →";nb.className="nav-btn nb-study";}
+  updProgress(wordIdx+1,dayWords.length,w.pos);setMode("study");showView("wordCardView");
+}
+function goNext(){
+  const w=dayWords[wordIdx];
+  if(w.conj&&w.conj.length>0)renderConj();
+  else if(wordIdx===dayWords.length-1)startQuiz();
+  else{wordIdx++;renderWord();}
+}
+function goNextWord(){if(wordIdx<dayWords.length-1){wordIdx++;renderWord();}else startQuiz();}
+function goPrev(){if(wordIdx>0){wordIdx--;renderWord();}}
+function backToWord(){renderWord();}
+
+// ── 活用カード＋発音チェック ──────────────────────────
+let currentForms=[];
+
+function renderConj(){
+  const w=dayWords[wordIdx];
+  currentForms=w.conj.split("|");
+  const rows=document.getElementById("conjRows");rows.innerHTML="";
+  currentForms.forEach((f,i)=>{
+    const s=i>0&&f===currentForms[0];
+    const d=document.createElement("div");d.className="conj-row";
+    d.innerHTML=`<span class="conj-role">${CL[i]}</span><span class="conj-form${s?" same":""}">${f}</span>`;
+    rows.appendChild(d);
+  });
+  const nb=document.getElementById("conjNextBtn");
+  if(wordIdx===dayWords.length-1){nb.textContent="クイズへ進む →";nb.className="nav-btn nb-quiz";}
+  else{nb.textContent="次の単語 →";nb.className="nav-btn nb-study";}
+  // 発音セクションをリセット
+  document.getElementById("pronunSection").classList.add("hidden");
+  document.getElementById("pronunSummary").classList.add("hidden");
+  document.getElementById("pronunSteps").innerHTML="";
+  showView("conjCardView");
+  setTimeout(()=>playConj(),400);
+}
+
+function playConj(){
+  const btn=document.getElementById("conjPlayBtn");
+  btn.textContent="♪ 再生中...";btn.className="conj-play playing";
+  speechSynthesis.cancel();let i=0;
+  function nx(){
+    if(i>=currentForms.length){
+      btn.textContent="▶ もう一度聞く";btn.className="conj-play";
+      showPronunSection(); // 再生完了後に発音セクションを表示
+      return;
+    }
+    const u=new SpeechSynthesisUtterance(currentForms[i]);u.lang="en-US";u.rate=0.75;
+    u.onend=()=>{i++;setTimeout(nx,400);};speechSynthesis.speak(u);
+  }nx();
+}
+
+// ── 発音チェック ──────────────────────────────────
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const hasMic=!!SR;
+let pronunResults=[];
+
+function showPronunSection(){
+  const sec=document.getElementById("pronunSection");
+  sec.classList.remove("hidden");
+  pronunResults=[];
+  const container=document.getElementById("pronunSteps");
+  container.innerHTML="";
+
+  if(!hasMic){
+    container.innerHTML=`<div class="no-mic-notice">⚠️ このブラウザは発音チェックに対応していません。<br>Safari（iPad）で開いてください。</div>`;
+    return;
+  }
+
+  // 各活用形のステップを作成
+  const uniqueForms=[...new Set(currentForms)]; // 同じ形（put/put/put）は1回だけ
+  const formsToCheck=currentForms; // 全3形式チェック（重複含む）
+
+  formsToCheck.forEach((form,i)=>{
+    const stepDiv=document.createElement("div");
+    stepDiv.className="pronun-step"+(i===0?" active":"");
+    stepDiv.id="pstep_"+i;
+    const isSame=i>0&&form===formsToCheck[0];
+    stepDiv.innerHTML=`
+      <div class="pronun-step-label">STEP ${i+1} / ${formsToCheck.length} · ${CL[i]}</div>
+      <div class="pronun-step-word">${form}</div>
+      <button class="mic-btn${i===0?"":" disabled"}" id="micbtn_${i}" onclick="startListening(${i},'${form}')">
+        🎤 タップして発音する
+      </button>
+      <div class="pronun-result" id="presult_${i}"></div>
+    `;
+    container.appendChild(stepDiv);
+  });
+}
+
+function startListening(stepIdx,expected){
+  const btn=document.getElementById("micbtn_"+stepIdx);
+  if(btn.classList.contains("disabled")) return;
+  btn.textContent="🎧 聞いています...";
+  btn.className="mic-btn listening";
+
+  const recognition=new SR();
+  recognition.lang="en-US";
+  recognition.continuous=false;
+  recognition.interimResults=false;
+  recognition.maxAlternatives=10;
+
+  recognition.onresult=(e)=>{
+    const transcripts=Array.from(e.results[0]).map(alt=>alt.transcript.toLowerCase().trim());
+    const ok=transcripts.some(t=>isClose(t,expected));
+    const heard=transcripts[0];
+    showStepResult(stepIdx,expected,ok,heard);
+  };
+  recognition.onerror=(e)=>{
+    const msg=e.error==="not-allowed"?"マイクの使用を許可してください":"もう一度試してください";
+    showStepResult(stepIdx,expected,false,msg);
+  };
+  recognition.onend=()=>{
+    btn.textContent="🎤 タップして発音する";
+    btn.className="mic-btn";
+  };
+  recognition.start();
+}
+
+function showStepResult(stepIdx,expected,ok,heard){
+  const step=document.getElementById("pstep_"+stepIdx);
+  const resDiv=document.getElementById("presult_"+stepIdx);
+  const btn=document.getElementById("micbtn_"+stepIdx);
+  step.classList.remove("active");
+  step.classList.add(ok?"done-ok":"done-ng");
+  btn.className="mic-btn disabled";
+  resDiv.className="pronun-result "+(ok?"ok":"ng");
+  if(ok){
+    resDiv.textContent="✅ 正解！ 「"+expected+"」 バッチリ！";
+  } else {
+    resDiv.textContent=`❌ 「${heard}」と聞こえたよ。正しくは「${expected}」だよ！`;
+    // 正解の発音をもう一度聞かせる
+    setTimeout(()=>{
+      const u=new SpeechSynthesisUtterance(expected);u.lang="en-US";u.rate=0.7;
+      speechSynthesis.speak(u);
+    },500);
+  }
+  pronunResults.push({expected,ok});
+
+  // 次のステップをアクティブに
+  const nextIdx=stepIdx+1;
+  const nextBtn=document.getElementById("micbtn_"+nextIdx);
+  const nextStep=document.getElementById("pstep_"+nextIdx);
+  if(nextBtn){
+    nextBtn.classList.remove("disabled");
+    nextStep.classList.add("active");
+    nextStep.scrollIntoView({behavior:"smooth",block:"nearest"});
+  } else {
+    // 全ステップ完了
+    setTimeout(()=>showPronunSummary(),600);
+  }
+}
+
+function showPronunSummary(){
+  const total=pronunResults.length;
+  const correct=pronunResults.filter(r=>r.ok).length;
+  const stars="⭐".repeat(correct)+"☆".repeat(total-correct);
+  const msgs=[
+    ["もう少し練習しよう！", "がんばって！", "少しできてるよ！"],
+    ["いいね！あと少し！", "惜しい！もう一度！", ""],
+    ["", "", "完璧！すごい！🎉"]
+  ];
+  const msg=correct===0?"もう少し練習しよう！💪":
+            correct===total?"パーフェクト！🎉🎉🎉":
+            correct===total-1?"惜しい！もう一回！":
+            "がんばってる！続けよう！";
+  document.getElementById("pronunStars").textContent=stars;
+  document.getElementById("pronunScore").textContent=`${correct} / ${total} 正解`;
+  document.getElementById("pronunMsg").textContent=msg;
+  document.getElementById("pronunSummary").classList.remove("hidden");
+  document.getElementById("pronunSummary").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+// ── クイズ ──────────────────────────────────────
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+
+function startQuiz(){
+  setMode("quiz");
+  const rev=getReviewWords(curDate),revNs=new Set(rev.map(w=>w.n)),todNs=new Set(dayWords.map(w=>w.n));
+  const combined=[...dayWords,...rev.filter(w=>!todNs.has(w.n))];
+  quizQueue=shuffle(combined);
+  quizQueue.forEach(w=>{w._rev=revNs.has(w.n)&&!todNs.has(w.n);});
+  quizIdx=0;qCorrect=0;qWrong=0;renderQuizQ();
+}
+
+function renderQuizQ(){
+  if(quizIdx>=quizQueue.length){showSummary();return;}
+  const w=quizQueue[quizIdx];qAnswered=false;
+  updProgress(quizIdx+1,quizQueue.length,"副詞");
+  document.getElementById("wordRange").textContent=`クイズ ${quizIdx+1} / ${quizQueue.length}`;
+  const rb=document.getElementById("reviewBadge");
+  w._rev?rb.classList.remove("hidden"):rb.classList.add("hidden");
+  document.getElementById("quizSentence").innerHTML=w.ex_en.replace(/___/g,'<span class="quiz-blank">＿＿＿</span>');
+  document.getElementById("quizJa").textContent=w.ex_ja;
+  const ans=(w.ans||w.word).toLowerCase();
+  const distractors=getDistractors(w,3).map(d=>d.toLowerCase());
+  const choices=shuffle([ans,...distractors]);
+  const grid=document.getElementById("choicesGrid");grid.innerHTML="";
+  choices.forEach(c=>{
+    const btn=document.createElement("button");btn.className="choice-btn";btn.textContent=c;
+    btn.onclick=()=>answerQ(c,ans,w,btn);grid.appendChild(btn);
+  });
+  document.getElementById("quizResult").style.display="none";
+  document.getElementById("quizResult").className="quiz-result";
+  const qnb=document.getElementById("quizNextBtn");
+  qnb.style.display="none";
+  qnb.textContent=quizIdx===quizQueue.length-1?"結果を見る →":"次の問題 →";
+  showView("quizCardView");
+}
+
+function answerQ(chosen,ans,word,clickedBtn){
+  if(qAnswered)return;qAnswered=true;
+  const ok=(chosen===ans);
+  document.getElementById("choicesGrid").querySelectorAll(".choice-btn").forEach(b=>{
+    b.disabled=true;if(b.textContent===ans)b.classList.add("show-correct");
+  });
+  if(!ok)clickedBtn.classList.add("wrong");else clickedBtn.classList.add("correct");
+  const res=document.getElementById("quizResult");
+  if(ok){res.className="quiz-result correct";res.textContent="正解！";qCorrect++;}
+  else{res.className="quiz-result wrong";res.textContent=`不正解。正解は「${ans}」`;qWrong++;}
+  recordResult(word.n,ok);
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(ans);u.lang="en-US";u.rate=0.85;speechSynthesis.speak(u);
+  document.getElementById("quizNextBtn").style.display="block";
+}
+function nextQuizQ(){quizIdx++;renderQuizQ();}
+
+// ── Summary & History ──────────────────────────
+function renderHistChart(hist,chartId,listId){
+  const chart=document.getElementById(chartId),list=document.getElementById(listId);
+  if(!hist.length){chart.innerHTML="";list.innerHTML="";return;}
+  chart.innerHTML=hist.slice(-14).map(h=>{
+    const col=rateColor(h.rate),hpx=Math.round(56*h.rate/100),md=h.date.slice(5);
+    return `<div class="hist-bar-wrap"><div class="hist-bar-pct">${h.rate}%</div><div class="hist-bar-bg"><div class="hist-bar-fill" style="height:${hpx}px;background:${col}"></div></div><div class="hist-bar-date">${md}</div></div>`;
+  }).join("");
+  list.innerHTML=[...hist].reverse().map(h=>{
+    const col=rateColor(h.rate);
+    return `<div class="hist-row"><span class="hist-row-date">${h.date}</span><span class="hist-row-day">Day ${h.day}</span><div class="hist-row-bar"><div class="hist-row-fill" style="width:${h.rate}%;background:${col}"></div></div><span class="hist-row-pct" style="color:${col}">${h.rate}%</span></div>`;
+  }).join("");
+}
+
+function showSummary(){
+  const tot=quizQueue.length,rate=tot>0?Math.round((qCorrect/tot)*100):0;
+  document.getElementById("sumCorrect").textContent=qCorrect+" 問";
+  document.getElementById("sumWrong").textContent=qWrong+" 問";
+  const re=document.getElementById("sumRate");re.textContent=rate+"%";
+  re.className="summary-val "+(rate>=80?"val-good":rate>=60?"val-warn":"val-bad");
+  const srs=loadSRS();
+  const weak=Object.entries(srs).filter(([,r])=>r.wrong>=2).sort(([,a],[,b])=>b.wrong-a.wrong).slice(0,5)
+    .map(([n,r])=>{const w=ALL_WORDS.find(x=>x.n===parseInt(n));return w?{word:w.word,ans:(w.ans||w.word).toLowerCase(),wrong:r.wrong}:null;}).filter(Boolean);
+  document.getElementById("weakList").innerHTML=weak.length>0?`<div class="weak-title">苦手な単語</div>`+
+    weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回</span></div>`).join(""):"";
+  saveScore(curDate,dateToDay(curDate),qCorrect,tot,rate);
+  renderHistChart(loadHist(),"histChart","histList");
+  document.getElementById("histSection").style.display="block";
+  document.getElementById("wordRange").textContent="クイズ完了";
+  document.getElementById("counter").classList.add("hidden");
+  showView("summaryView");
+}
+
+function showStats(){
+  renderHistChart(loadHist(),"statsChart","statsList");
+  const srs=loadSRS();
+  const weak=Object.entries(srs).filter(([,r])=>r.wrong>=2).sort(([,a],[,b])=>b.wrong-a.wrong).slice(0,10)
+    .map(([n,r])=>{const w=ALL_WORDS.find(x=>x.n===parseInt(n));return w?{word:w.word,ans:(w.ans||w.word).toLowerCase(),wrong:r.wrong}:null;}).filter(Boolean);
+  document.getElementById("statsWeak").innerHTML=weak.length>0
+    ?weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回</span></div>`).join("")
+    :'<div style="font-size:14px;color:#3a3860;padding:10px 0">苦手な単語はまだありません 🎉</div>';
+  showView("statsView");
+}
+
+function finishDay(){wordIdx=0;renderWord();}
+function startStudy(){renderWord();}
+function startQuizFromSelect(){startQuiz();}
+
+function loadDay(s){
+  curDate=s;const day=dateToDay(s),st=(day-1)*PER_DAY+1,en=st+PER_DAY-1;
+  document.getElementById("dayBadge").textContent="Day "+day;
+  document.getElementById("wordRange").textContent="第"+st+"語〜第"+Math.min(en,MAX_W)+"語";
+  document.getElementById("counter").classList.add("hidden");
+  document.getElementById("progressFill").style.width="0%";
+  wordIdx=0;
+  if(st>MAX_W){showView("completeView");return;}
+  dayWords=ALL_WORDS.filter(w=>w.n>=st&&w.n<=en);
+  if(!dayWords.length){showView("noDataView");return;}
+  const revCount=getReviewWords(s).filter(w=>!dayWords.find(d=>d.n===w.n)).length;
+  document.getElementById("modeSelectTitle").textContent="Day "+day;
+  document.getElementById("modeSelectSub").textContent=revCount>0?`今日の25語 + 復習語 ${revCount}語`:"今日の25語で学習・テスト";
+  setMode("study");showView("modeSelectView");
+}
+document.getElementById("dateInput").addEventListener("change",e=>loadDay(e.target.value));
+loadDay("2026-04-20");
+</script>
+</body>
+</html>
