@@ -208,6 +208,25 @@
     .center-icon{font-size:40px;margin-bottom:12px;}
     .center-title{font-size:20px;font-weight:700;color:#8884cc;margin-bottom:8px;}
     .center-sub{font-size:14px;color:#5c59a0;line-height:1.8;}
+
+    /* ── Word List ── */
+    .wordlist-page{padding:4px 0}
+    .wordlist-back{display:flex;align-items:center;gap:8px;background:none;border:none;color:#5c59a0;font-size:14px;font-family:inherit;cursor:pointer;padding:4px 0 20px;width:100%}
+    .wordlist-back:hover{color:#8884cc}
+    .wordlist-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+    .wordlist-title{font-size:17px;font-weight:700;color:#e8e4ff}
+    .wordlist-count{font-size:12px;color:#5c5888}
+    .wordlist-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#14122a;border:1px solid #1e1b38;border-radius:12px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+    .wordlist-item:hover{background:#1a1730;border-color:#2e2b50}
+    .wordlist-item:active{transform:scale(.98)}
+    .wordlist-rank{font-size:12px;color:#3a3860;width:24px;text-align:right;flex-shrink:0}
+    .wordlist-word{font-size:20px;font-weight:700;color:#e8e4ff;flex:1}
+    .wordlist-meaning{font-size:12px;color:#5c5888;flex:1;text-align:right;line-height:1.4}
+    .wordlist-badge{font-size:11px;border-radius:4px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
+    .badge-weak{background:#200a0a;color:#e06060;border:1px solid #501818}
+    .badge-ok{background:#0a2010;color:#50c878;border:1px solid #1a5028}
+    .badge-new{background:#1a1230;color:#9b79e0;border:1px solid #3a2860}
+    .wordlist-empty{font-size:14px;color:#3a3860;text-align:center;padding:32px 0;line-height:1.9}
     .hidden{display:none;}
     .no-mic-notice{font-size:13px;color:#5c5888;text-align:center;padding:12px;background:#0e0c20;border-radius:10px;margin-top:10px;}
   </style>
@@ -249,7 +268,7 @@
           <span class="mode-btn-icon">📊</span>
           <div><div class="mode-btn-label">成果を見る</div><div class="mode-btn-desc">スコア履歴・苦手な単語を確認</div></div>
         </button>
-        <button class="mode-btn mode-btn-stats" onclick="showWordList()">
+        <button class="mode-btn" style="background:#0e0c20;border-color:#2e2b50;color:#c0bce8" onclick="showWordList()">
           <span class="mode-btn-icon">📋</span>
           <div>
             <div class="mode-btn-label">単語一覧</div>
@@ -358,6 +377,7 @@
         <div class="stats-section-title">スコア履歴</div>
         <div class="hist-chart" id="statsChart"></div>
         <div id="statsList"></div>
+        <div id="statsListHist"></div>
         <div style="margin-top:22px">
           <div class="stats-section-title">苦手な単語</div>
           <div id="statsWeak"></div>
@@ -734,21 +754,57 @@ function startListening(stepIdx,expected){
   recognition.interimResults=false;
   recognition.maxAlternatives=10;
 
+  let resultReceived=false;
+
   recognition.onresult=(e)=>{
+    resultReceived=true;
     const transcripts=Array.from(e.results[0]).map(alt=>alt.transcript.toLowerCase().trim());
     const ok=transcripts.some(t=>isClose(t,expected));
     const heard=transcripts[0];
     showStepResult(stepIdx,expected,ok,heard);
   };
+
   recognition.onerror=(e)=>{
-    const msg=e.error==="not-allowed"?"マイクの使用を許可してください":"もう一度試してください";
-    showStepResult(stepIdx,expected,false,msg);
-  };
-  recognition.onend=()=>{
+    resultReceived=true;
+    const msgs={
+      "not-allowed":         "❌ マイクを許可してください（設定→Safari→マイク→許可）",
+      "no-speech":           "🔇 声が聞こえなかったよ。もう少し大きな声で！",
+      "network":             "📶 通信エラー。Wi-Fiを確認してもう一度！",
+      "audio-capture":       "🎤 マイクが使えません。設定を確認して！",
+      "service-not-allowed": "⚠️ このブラウザは音声認識に非対応。SafariかChromeを使ってね",
+      "aborted":             "⏹ 中断されました。もう一度タップして！",
+    };
+    const msg=msgs[e.error]||("エラー("+e.error+")。もう一度試してみて！");
     btn.textContent="🎤 タップして発音する";
     btn.className="mic-btn";
+    const resDiv=document.getElementById("presult_"+stepIdx);
+    resDiv.className="pronun-result ng";
+    resDiv.textContent=msg;
   };
-  recognition.start();
+
+  recognition.onend=()=>{
+    if(!resultReceived){
+      btn.textContent="🎤 タップして発音する";
+      btn.className="mic-btn";
+      const resDiv=document.getElementById("presult_"+stepIdx);
+      resDiv.className="pronun-result ng";
+      resDiv.textContent="🔇 声が聞こえなかったよ。もう一度大きめに言ってみて！";
+    }
+  };
+
+  // iOS Safari: slight delay after setup before start
+  setTimeout(() => {
+    try {
+      recognition.start();
+    } catch(err) {
+      resultReceived = true;
+      btn.textContent = "🎤 タップして発音する";
+      btn.className = "mic-btn";
+      const resDiv = document.getElementById("presult_" + stepIdx);
+      resDiv.className = "pronun-result ng";
+      resDiv.textContent = "⚠️ 音声認識を開始できませんでした。もう一度タップして！";
+    }
+  }, 100);
 }
 
 function showStepResult(stepIdx,expected,ok,heard){
@@ -893,7 +949,7 @@ function showSummary(){
 }
 
 function showStats(){
-  renderHistChart(loadHist(),"statsChart","statsList");
+  renderHistChart(loadHist(),"statsChart","statsListHist");
   const srs=loadSRS();
   const weak=Object.entries(srs).filter(([,r])=>r.wrong>=2).sort(([,a],[,b])=>b.wrong-a.wrong).slice(0,10)
     .map(([n,r])=>{const w=ALL_WORDS.find(x=>x.n===parseInt(n));return w?{word:w.word,ans:(w.ans||w.word).toLowerCase(),wrong:r.wrong}:null;}).filter(Boolean);
