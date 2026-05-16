@@ -3,211 +3,385 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>英検3級 発音チェック</title>
+  <title>英検3級 音読トレーニング</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{
-      min-height:100vh;
-      background:linear-gradient(160deg,#0a0c1e 0%,#10152a 100%);
-      color:#ddd9f0;
-      font-family:-apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
-      display:flex;justify-content:center;font-size:16px;
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg,#0d0c1d 0%,#13112a 100%);
+      color: #ddd9f0;
+      font-family: -apple-system,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;
+      display: flex;
+      justify-content: center;
+      font-size: 16px;
     }
-    .app{width:100%;max-width:680px;min-height:100vh;padding-bottom:48px;}
 
-    /* Header */
-    .header{padding:22px 28px 18px;border-bottom:1px solid #1e1b38;display:flex;align-items:center;justify-content:space-between;}
-    .header-label{font-size:11px;letter-spacing:.18em;color:#5c59a0;text-transform:uppercase;margin-bottom:4px;}
-    .header-title{font-size:20px;font-weight:700;color:#e8e4ff;}
-    .header-sub{font-size:13px;color:#7c77a8;margin-top:2px;}
-    input[type="date"]{background:#1a1730;border:1px solid #2e2b50;border-radius:10px;color:#b0acdc;padding:9px 13px;font-size:15px;outline:none;font-family:inherit;}
-
-    /* Day info */
-    .day-info{padding:14px 28px 0;}
-    .day-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
-    .day-badge{background:#3a36a8;color:#c8c5ff;font-size:13px;font-weight:700;padding:5px 16px;border-radius:20px;}
-    .mode-badge{font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;}
-    .mode-study{background:#0a2010;color:#50c878;border:1px solid #1a4a28;}
-    .mode-quiz{background:#1a1230;color:#9b79e0;border:1px solid #3a2860;}
-    .word-range{font-size:13px;color:#5c59a0;}
-    .counter{margin-left:auto;font-size:13px;color:#5c5888;}
-    .progress-track{height:4px;background:#1a1730;border-radius:2px;overflow:hidden;}
-    .progress-fill{height:100%;border-radius:2px;transition:width .4s ease;}
-
-    /* Main */
-    .main{padding:18px 28px 0;}
-
-    /* Mode Select */
-    .mode-select{padding:8px 0;}
-    .mode-select-title{font-size:22px;font-weight:700;color:#e8e4ff;text-align:center;margin-bottom:6px;}
-    .mode-select-sub{font-size:13px;color:#5c59a0;text-align:center;margin-bottom:28px;}
-    .mode-btn{display:flex;align-items:center;gap:18px;width:100%;padding:22px;border-radius:14px;border:1px solid;cursor:pointer;font-family:inherit;text-align:left;margin-bottom:14px;transition:all .15s;}
-    .mode-btn-study{background:#0a2010;border-color:#1a4a28;color:#c0e8c8;}
-    .mode-btn-study:hover{background:#0e2a18;}
-    .mode-btn-quiz{background:#1a1230;border-color:#3a2860;color:#c8b0f8;}
-    .mode-btn-quiz:hover{background:#201840;}
-    .mode-btn-stats{background:#0e1828;border-color:#1e3850;color:#78b8e8;margin-top:4px;}
-    .mode-btn-stats:hover{background:#142030;}
-    .mode-btn-icon{font-size:28px;flex-shrink:0;width:36px;text-align:center;}
-    .mode-btn-label{font-size:17px;font-weight:700;margin-bottom:4px;}
-    .mode-btn-desc{font-size:13px;opacity:.7;line-height:1.5;}
-
-    /* Word Card */
-    .word-card{border-radius:18px;padding:26px 24px 22px;margin-bottom:14px;position:relative;overflow:hidden;background:#14122a;border:1px solid rgba(124,119,209,.16);}
-    .glow{position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;pointer-events:none;}
-    .word-meta{display:flex;gap:10px;align-items:center;margin-bottom:14px;}
-    .word-num{font-size:13px;color:#3a3860;}
-    .pos-badge{font-size:12px;font-weight:600;padding:3px 11px;border-radius:5px;}
-    .word-en{font-size:48px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px;line-height:1.1;}
-    .word-ja{font-size:24px;font-weight:500;margin-bottom:22px;opacity:.9;}
-    .example-box{background:#0e0c20;border-radius:14px;padding:18px;}
-    .ex-en{font-size:17px;color:#c0bce8;line-height:1.75;margin-bottom:9px;font-weight:500;}
-    .ex-ja{font-size:14px;color:#5c5888;line-height:1.6;}
-
-    /* Conjugation Card (with pronunciation check) */
-    .conj-card{border-radius:18px;padding:24px 22px;margin-bottom:14px;background:#0f1a14;border:1px solid rgba(80,200,120,.2);}
-    .conj-header{display:flex;gap:10px;align-items:center;margin-bottom:18px;}
-    .conj-label{font-size:11px;letter-spacing:.15em;color:#3a8a56;text-transform:uppercase;font-weight:600;}
-    .conj-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
-    .conj-row{display:flex;align-items:center;gap:14px;background:#0a1a10;border-radius:12px;padding:14px 18px;}
-    .conj-role{font-size:12px;color:#3a6a46;width:56px;flex-shrink:0;}
-    .conj-form{font-size:30px;font-weight:800;color:#fff;letter-spacing:-.5px;flex:1;}
-    .conj-form.same{color:#5a7a62;font-size:26px;}
-    .conj-play{border-radius:10px;padding:12px 20px;font-size:15px;cursor:pointer;font-family:inherit;transition:all .2s;background:#1a3a22;border:1px solid #2a5a32;color:#60c070;font-weight:600;display:flex;align-items:center;gap:8px;width:100%;justify-content:center;margin-bottom:16px;}
-    .conj-play.playing{background:rgba(80,200,120,.15);border-color:rgba(80,200,120,.5);color:#80e090;}
-
-    /* Pronunciation Check Section */
-    .pronun-section{border-top:1px solid rgba(80,200,120,.2);padding-top:18px;transition:opacity .3s;}
-    .pronun-intro{font-size:15px;font-weight:700;color:#80e090;text-align:center;margin-bottom:18px;}
-    .pronun-step{
-      background:#081408;
-      border:2px solid #1a4a28;
-      border-radius:16px;
-      padding:20px 18px;
-      margin-bottom:14px;
-      transition:all .3s;
+    .app {
+      width: 100%;
+      max-width: 680px;
+      min-height: 100vh;
+      padding-bottom: 48px;
     }
-    .pronun-step.active{border-color:#40c060;background:#0a1e0a;}
-    .pronun-step.done-ok{border-color:#50c878;background:#061a0a;}
-    .pronun-step.done-ng{border-color:#c05050;background:#1a0808;}
-    .pronun-step-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#3a6a46;margin-bottom:6px;}
-    .pronun-step-word{font-size:36px;font-weight:800;color:#c0e8c0;letter-spacing:-.5px;margin-bottom:14px;}
-    .pronun-step.done-ok .pronun-step-word{color:#50c878;}
-    .pronun-step.done-ng .pronun-step-word{color:#e06060;}
 
-    /* Mic button */
-    .mic-btn{
-      width:100%;
-      padding:18px;
-      border-radius:14px;
-      font-size:18px;
-      font-weight:700;
-      font-family:inherit;
-      cursor:pointer;
-      transition:all .2s;
-      background:#1a3a22;
-      border:2px solid #2a5a32;
-      color:#60c070;
-      display:flex;align-items:center;justify-content:center;gap:10px;
+    /* ── Header ── */
+    .header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid #1e1b38;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .mic-btn:hover{background:#204a28;border-color:#40a050;}
-    .mic-btn.listening{
-      background:#0a2a10;
-      border-color:#60d070;
-      color:#80f090;
-      animation:pulse-border 1s ease-in-out infinite;
+    .header-label {
+      font-size: 11px;
+      letter-spacing: .18em;
+      color: #5c59a0;
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
-    .mic-btn.disabled{opacity:.4;cursor:default;}
-    @keyframes pulse-border{0%,100%{border-color:#60d070;box-shadow:0 0 0 0 rgba(96,208,112,.4);}50%{border-color:#80f090;box-shadow:0 0 0 8px rgba(96,208,112,.0);}}
-
-    .pronun-result{
-      margin-top:12px;
-      padding:14px 16px;
-      border-radius:12px;
-      font-size:16px;
-      font-weight:600;
-      line-height:1.6;
-      display:none;
+    .header-title { font-size: 20px; font-weight: 700; color: #e8e4ff; }
+    input[type="date"] {
+      background: #1a1730;
+      border: 1px solid #2e2b50;
+      border-radius: 10px;
+      color: #b0acdc;
+      padding: 9px 13px;
+      font-size: 15px;
+      outline: none;
+      font-family: inherit;
     }
-    .pronun-result.ok{background:#0a2010;color:#50e878;border:1px solid #1a5028;display:block;}
-    .pronun-result.ng{background:#200a0a;color:#e06060;border:1px solid #501818;display:block;}
 
-    /* Pronun Summary */
-    .pronun-summary{
-      background:#0a1e10;
-      border:2px solid #30a050;
-      border-radius:16px;
-      padding:22px 18px;
-      text-align:center;
-      margin-top:4px;
+    /* ── Day info ── */
+    .day-info { padding: 14px 28px 0; }
+    .day-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .day-badge {
+      background: #3a36a8;
+      color: #c8c5ff;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 16px;
+      border-radius: 20px;
+      white-space: nowrap;
     }
-    .pronun-stars{font-size:36px;margin-bottom:8px;letter-spacing:4px;}
-    .pronun-score{font-size:22px;font-weight:800;color:#80f090;margin-bottom:6px;}
-    .pronun-msg{font-size:15px;color:#60c878;}
+    .mode-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .mode-study { background: #0a2010; color: #50c878; border: 1px solid #1a4a28; }
+    .mode-quiz  { background: #1a1230; color: #9b79e0; border: 1px solid #3a2860; }
+    .word-range { font-size: 13px; color: #5c59a0; }
+    .counter    { margin-left: auto; font-size: 13px; color: #5c5888; }
+    .progress-track { height: 4px; background: #1a1730; border-radius: 2px; overflow: hidden; }
+    .progress-fill  { height: 100%; border-radius: 2px; transition: width .4s ease; }
 
-    /* Quiz Card */
-    .quiz-card{border-radius:18px;padding:24px 22px;margin-bottom:14px;background:#13102a;border:1px solid rgba(155,121,224,.2);}
-    .quiz-review-badge{font-size:11px;background:#2a1a40;color:#9b79e0;border:1px solid #4a2a70;border-radius:5px;padding:3px 10px;display:inline-block;margin-bottom:12px;}
-    .quiz-sentence{font-size:19px;color:#c0bce8;line-height:1.85;margin-bottom:8px;font-weight:500;}
-    .quiz-blank{display:inline-block;background:#2a2050;border-bottom:2.5px solid #6a5aaa;color:#6a5aaa;padding:0 14px;border-radius:5px 5px 0 0;font-weight:700;font-size:19px;min-width:90px;text-align:center;}
-    .quiz-ja{font-size:14px;color:#5c5888;line-height:1.6;margin-bottom:22px;}
-    .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    .choice-btn{padding:20px 12px;border-radius:14px;font-size:19px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;background:#1a1730;border:1px solid #2e2b50;color:#c0bce8;text-align:center;min-height:72px;display:flex;align-items:center;justify-content:center;}
-    .choice-btn:hover:not(:disabled){background:#242040;border-color:#4a4080;}
-    .choice-btn:active:not(:disabled){transform:scale(.97);}
-    .choice-btn.correct{background:#0a2a10!important;border-color:#40a060!important;color:#60e080!important;}
-    .choice-btn.wrong{background:#2a0a0a!important;border-color:#a04040!important;color:#e06060!important;}
-    .choice-btn.show-correct{background:#0a2a10!important;border-color:#40a060!important;color:#60e080!important;}
-    .choice-btn:disabled{cursor:default;}
-    .quiz-result{font-size:15px;font-weight:600;margin-top:14px;padding:13px 16px;border-radius:12px;display:none;line-height:1.6;}
-    .quiz-result.correct{background:#0a2010;color:#50d070;border:1px solid #1a5028;display:block;}
-    .quiz-result.wrong{background:#200a0a;color:#e06060;border:1px solid #501818;display:block;}
+    /* ── Main ── */
+    .main { padding: 18px 28px 0; }
 
-    /* Nav */
-    .nav{display:flex;gap:12px;}
-    .nav-btn{padding:17px 16px;border-radius:14px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .15s;min-height:58px;}
-    .nb-prev{flex:1;background:#1a1730;border:1px solid #2e2b50;color:#7c77a8;}
-    .nb-prev:disabled{background:#0e0c1e;color:#2e2b50;cursor:default;}
-    .nb-study{flex:2;background:#3a36a8;color:#fff;border:none;}
-    .nb-conj{flex:2;background:#1a3a22;color:#60c070;border:1px solid #2a5a32;}
-    .nb-quiz{flex:2;background:#3a2880;color:#c8b0f8;border:none;}
+    /* ── Mode Select ── */
+    .mode-select { padding: 8px 0; }
+    .mode-select-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #e8e4ff;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .mode-select-sub { font-size: 13px; color: #5c59a0; text-align: center; margin-bottom: 28px; }
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      padding: 22px 22px;
+      border-radius: 14px;
+      border: 1px solid;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      margin-bottom: 14px;
+      transition: all .15s;
+    }
+    .mode-btn-study { background: #0a2010; border-color: #1a4a28; color: #c0e8c8; }
+    .mode-btn-study:hover { background: #0e2a18; }
+    .mode-btn-quiz  { background: #1a1230; border-color: #3a2860; color: #c8b0f8; }
+    .mode-btn-quiz:hover { background: #201840; }
+    .mode-btn-stats { background: #0e1828; border-color: #1e3850; color: #78b8e8; margin-top: 4px; }
+    .mode-btn-stats:hover { background: #142030; }
+    .mode-btn-icon { font-size: 28px; flex-shrink: 0; width: 36px; text-align: center; }
+    .mode-btn-label { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .mode-btn-desc  { font-size: 13px; opacity: .7; line-height: 1.5; }
 
-    /* Summary */
-    .summary-card{border-radius:18px;padding:26px 22px;background:#13102a;border:1px solid rgba(155,121,224,.2);margin-bottom:14px;}
-    .summary-title{font-size:20px;font-weight:700;color:#e8e4ff;margin-bottom:18px;}
-    .summary-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid #1e1b30;}
-    .summary-row:last-child{border-bottom:none;}
-    .summary-label{font-size:15px;color:#7c77a8;}
-    .summary-val{font-size:24px;font-weight:700;}
-    .val-good{color:#50c878;}.val-warn{color:#f5a623;}.val-bad{color:#e06060;}
-    .weak-list{margin-top:18px;}
-    .weak-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
-    .weak-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0e0c20;border-radius:10px;margin-bottom:8px;}
-    .weak-word{font-size:17px;font-weight:700;color:#c0bce8;}
-    .weak-cnt{font-size:12px;color:#9b79e0;background:#2a1a40;padding:3px 10px;border-radius:5px;}
-    .hist-section{margin-top:20px;border-top:1px solid #1e1b30;padding-top:18px;}
-    .hist-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
-    .hist-chart{display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:12px;}
-    .hist-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:0;}
-    .hist-bar-bg{width:100%;background:#1a1730;border-radius:4px;overflow:hidden;height:56px;display:flex;align-items:flex-end;}
-    .hist-bar-fill{width:100%;border-radius:3px;transition:height .5s ease;min-height:3px;}
-    .hist-bar-pct{font-size:9px;color:#5c5888;text-align:center;width:100%;}
-    .hist-bar-date{font-size:9px;color:#3a3860;text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .hist-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #13112a;}
-    .hist-row:last-child{border-bottom:none;}
-    .hist-row-date{font-size:13px;color:#7c77a8;flex:1;}
-    .hist-row-day{font-size:12px;color:#3a3860;width:48px;text-align:center;}
-    .hist-row-bar{flex:2;height:6px;background:#1a1730;border-radius:3px;overflow:hidden;margin:0 10px;}
-    .hist-row-fill{height:100%;border-radius:3px;}
-    .hist-row-pct{font-size:15px;font-weight:700;width:40px;text-align:right;}
-    .stats-page{padding:4px 0;}
-    .stats-back{display:flex;align-items:center;gap:8px;background:none;border:none;color:#5c59a0;font-size:14px;font-family:inherit;cursor:pointer;padding:4px 0 22px;width:100%;}
-    .stats-back:hover{color:#8884cc;}
-    .stats-section-title{font-size:12px;color:#5c59a0;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;margin-top:4px;}
-    .center-msg{text-align:center;padding:56px 24px;}
-    .center-icon{font-size:40px;margin-bottom:12px;}
-    .center-title{font-size:20px;font-weight:700;color:#8884cc;margin-bottom:8px;}
-    .center-sub{font-size:14px;color:#5c59a0;line-height:1.8;}
+    /* ── Word Card ── */
+    .word-card {
+      border-radius: 18px;
+      padding: 26px 24px 22px;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+      background: #14122a;
+      border: 1px solid rgba(124,119,209,.16);
+    }
+    .glow {
+      position: absolute;
+      top: -20px; right: -20px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .word-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+    .word-num  { font-size: 13px; color: #3a3860; }
+    .pos-badge { font-size: 12px; font-weight: 600; padding: 3px 11px; border-radius: 5px; }
+    .word-en   {
+      font-size: 48px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -1px;
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+    .word-ja   { font-size: 24px; font-weight: 500; margin-bottom: 22px; opacity: .9; }
+
+    .example-box {
+      background: #0e0c20;
+      border-radius: 14px;
+      padding: 18px 18px;
+    }
+    .ex-en {
+      font-size: 17px;
+      color: #c0bce8;
+      line-height: 1.75;
+      margin-bottom: 9px;
+      font-weight: 500;
+    }
+    .ex-ja { font-size: 14px; color: #5c5888; line-height: 1.6; margin-bottom: 16px; }
+    .speak-btn {
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1e1b38;
+      border: 1px solid #2e2b50;
+      color: #7c77a8;
+    }
+    .speak-btn.active { border-color: rgba(124,119,209,.6); color: #7c77d1; background: rgba(124,119,209,.13); }
+
+    /* ── Conjugation Card ── */
+    .conj-card {
+      border-radius: 18px;
+      padding: 22px 22px;
+      margin-bottom: 14px;
+      background: #0f1a14;
+      border: 1px solid rgba(80,200,120,.2);
+    }
+    .conj-header { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; }
+    .conj-label  { font-size: 11px; letter-spacing: .15em; color: #3a8a56; text-transform: uppercase; font-weight: 600; }
+    .conj-rows   { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .conj-row    {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #0a1a10;
+      border-radius: 12px;
+      padding: 14px 18px;
+    }
+    .conj-role { font-size: 12px; color: #3a6a46; width: 56px; flex-shrink: 0; }
+    .conj-form { font-size: 30px; font-weight: 800; color: #fff; letter-spacing: -.5px; flex: 1; }
+    .conj-form.same { color: #5a7a62; font-size: 26px; }
+    .conj-play {
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .2s;
+      background: #1a3a22;
+      border: 1px solid #2a5a32;
+      color: #60c070;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .conj-play.playing { background: rgba(80,200,120,.15); border-color: rgba(80,200,120,.5); color: #80e090; }
+
+    /* ── Quiz Card ── */
+    .quiz-card {
+      border-radius: 18px;
+      padding: 24px 22px;
+      margin-bottom: 14px;
+      background: #13102a;
+      border: 1px solid rgba(155,121,224,.2);
+    }
+    .quiz-review-badge {
+      font-size: 11px;
+      background: #2a1a40;
+      color: #9b79e0;
+      border: 1px solid #4a2a70;
+      border-radius: 5px;
+      padding: 3px 10px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .quiz-sentence {
+      font-size: 19px;
+      color: #c0bce8;
+      line-height: 1.85;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .quiz-blank {
+      display: inline-block;
+      background: #2a2050;
+      border-bottom: 2.5px solid #6a5aaa;
+      color: #6a5aaa;
+      padding: 0 14px;
+      border-radius: 5px 5px 0 0;
+      font-weight: 700;
+      font-size: 19px;
+      min-width: 90px;
+      text-align: center;
+    }
+    .quiz-ja { font-size: 14px; color: #5c5888; line-height: 1.6; margin-bottom: 22px; }
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .choice-btn {
+      padding: 20px 12px;
+      border-radius: 14px;
+      font-size: 19px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      background: #1a1730;
+      border: 1px solid #2e2b50;
+      color: #c0bce8;
+      text-align: center;
+      line-height: 1.3;
+      letter-spacing: -.02em;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .choice-btn:hover:not(:disabled) { background: #242040; border-color: #4a4080; }
+    .choice-btn:active:not(:disabled) { transform: scale(0.97); }
+    .choice-btn.correct   { background: #0a2a10!important; border-color: #40a060!important; color: #60e080!important; }
+    .choice-btn.wrong     { background: #2a0a0a!important; border-color: #a04040!important; color: #e06060!important; }
+    .choice-btn.show-correct { background: #0a2a10!important; border-color: #40a060!important; color: #60e080!important; }
+    .choice-btn:disabled { cursor: default; }
+    .quiz-result {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 14px;
+      padding: 13px 16px;
+      border-radius: 12px;
+      display: none;
+      line-height: 1.6;
+    }
+    .quiz-result.correct { background: #0a2010; color: #50d070; border: 1px solid #1a5028; display: block; }
+    .quiz-result.wrong   { background: #200a0a; color: #e06060; border: 1px solid #501818; display: block; }
+
+    /* ── Nav Buttons ── */
+    .nav { display: flex; gap: 12px; }
+    .nav-btn {
+      padding: 17px 16px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      min-height: 58px;
+    }
+    .nb-prev { flex: 1; background: #1a1730; border: 1px solid #2e2b50; color: #7c77a8; }
+    .nb-prev:disabled { background: #0e0c1e; color: #2e2b50; cursor: default; }
+    .nb-study { flex: 2; background: #3a36a8; color: #fff; border: none; }
+    .nb-study:hover { background: #4a44c8; }
+    .nb-conj  { flex: 2; background: #1a3a22; color: #60c070; border: 1px solid #2a5a32; }
+    .nb-quiz  { flex: 2; background: #3a2880; color: #c8b0f8; border: none; }
+    .nb-quiz:hover { background: #4a38a0; }
+
+    /* ── Summary ── */
+    .summary-card {
+      border-radius: 18px;
+      padding: 26px 22px;
+      background: #13102a;
+      border: 1px solid rgba(155,121,224,.2);
+      margin-bottom: 14px;
+    }
+    .summary-title { font-size: 20px; font-weight: 700; color: #e8e4ff; margin-bottom: 18px; }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid #1e1b30;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { font-size: 15px; color: #7c77a8; }
+    .summary-val   { font-size: 24px; font-weight: 700; }
+    .val-good { color: #50c878; } .val-warn { color: #f5a623; } .val-bad { color: #e06060; }
+    .weak-list { margin-top: 18px; }
+    .weak-title { font-size: 12px; color: #5c59a0; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
+    .weak-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #0e0c20;
+      border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .weak-word { font-size: 17px; font-weight: 700; color: #c0bce8; }
+    .weak-cnt  { font-size: 12px; color: #9b79e0; background: #2a1a40; padding: 3px 10px; border-radius: 5px; }
+
+    /* ── History ── */
+    .hist-section { margin-top: 20px; border-top: 1px solid #1e1b30; padding-top: 18px; }
+    .hist-title { font-size: 12px; color: #5c59a0; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; }
+    .hist-chart { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-bottom: 12px; }
+    .hist-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; }
+    .hist-bar-bg   { width: 100%; background: #1a1730; border-radius: 4px; overflow: hidden; height: 56px; display: flex; align-items: flex-end; }
+    .hist-bar-fill { width: 100%; border-radius: 3px; transition: height .5s ease; min-height: 3px; }
+    .hist-bar-pct  { font-size: 9px; color: #5c5888; text-align: center; width: 100%; }
+    .hist-bar-date { font-size: 9px; color: #3a3860; text-align: center; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #13112a; }
+    .hist-row:last-child { border-bottom: none; }
+    .hist-row-date { font-size: 13px; color: #7c77a8; flex: 1; }
+    .hist-row-day  { font-size: 12px; color: #3a3860; width: 48px; text-align: center; }
+    .hist-row-bar  { flex: 2; height: 6px; background: #1a1730; border-radius: 3px; overflow: hidden; margin: 0 10px; }
+    .hist-row-fill { height: 100%; border-radius: 3px; }
+    .hist-row-pct  { font-size: 15px; font-weight: 700; width: 40px; text-align: right; }
+
+    /* ── Stats page ── */
+    .stats-page { padding: 4px 0; }
+    .stats-back {
+      display: flex; align-items: center; gap: 8px;
+      background: none; border: none;
+      color: #5c59a0; font-size: 14px;
+      font-family: inherit; cursor: pointer;
+      padding: 4px 0 22px; width: 100%;
+    }
+    .stats-back:hover { color: #8884cc; }
+    .stats-section-title { font-size: 12px; color: #5c59a0; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; margin-top: 4px; }
+
+    /* ── Center message ── */
+    .center-msg { text-align: center; padding: 56px 24px; }
+    .center-icon  { font-size: 40px; margin-bottom: 12px; }
+    .center-title { font-size: 20px; font-weight: 700; color: #8884cc; margin-bottom: 8px; }
+    .center-sub   { font-size: 14px; color: #5c59a0; line-height: 1.8; }
 
     /* ── Word List ── */
     .wordlist-page{padding:4px 0}
@@ -221,19 +395,13 @@
     .wordlist-item:active{transform:scale(.98)}
     .wordlist-rank{font-size:12px;color:#3a3860;width:24px;text-align:right;flex-shrink:0}
     .wordlist-word{font-size:20px;font-weight:700;color:#e8e4ff;flex:1}
-    .wordlist-meaning{font-size:12px;color:#5c5888;flex:1;text-align:right;line-height:1.4}
+    .wordlist-meaning{font-size:13px;color:#5c5888;flex:1;text-align:right}
     .wordlist-badge{font-size:11px;border-radius:4px;padding:3px 8px;white-space:nowrap;flex-shrink:0}
     .badge-weak{background:#200a0a;color:#e06060;border:1px solid #501818}
     .badge-ok{background:#0a2010;color:#50c878;border:1px solid #1a5028}
     .badge-new{background:#1a1230;color:#9b79e0;border:1px solid #3a2860}
     .wordlist-empty{font-size:14px;color:#3a3860;text-align:center;padding:32px 0;line-height:1.9}
-
-    /* ── Home button (floating) ── */
-    .home-fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:#3a36a8;border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);transition:all .2s;z-index:100;display:flex;align-items:center;justify-content:center;}
-    .home-fab:hover{background:#4a44c8;transform:scale(1.08);}
-    .home-fab.hidden-fab{display:none;}
-    .hidden{display:none;}
-    .no-mic-notice{font-size:13px;color:#5c5888;text-align:center;padding:12px;background:#0e0c20;border-radius:10px;margin-top:10px;}
+    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -241,10 +409,11 @@
   <div class="header">
     <div>
       <div class="header-label">英検3級 · でる順パス単</div>
-      <div class="header-title">音読＆発音チェック</div>
+      <div class="header-title">音読トレーニング</div>
     </div>
     <input type="date" id="dateInput" value="2026-04-20" min="2026-04-20" max="2026-05-30"/>
   </div>
+
   <div class="day-info">
     <div class="day-row">
       <span class="day-badge" id="dayBadge">Day 1</span>
@@ -254,6 +423,7 @@
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
+
   <div class="main">
 
     <!-- モード選択 -->
@@ -263,15 +433,24 @@
         <div class="mode-select-sub" id="modeSelectSub">どちらから始めますか？</div>
         <button class="mode-btn mode-btn-study" onclick="startStudy()">
           <span class="mode-btn-icon">📖</span>
-          <div><div class="mode-btn-label">学習モード</div><div class="mode-btn-desc">単語カード → 活用形＆発音チェック</div></div>
+          <div>
+            <div class="mode-btn-label">学習モード</div>
+            <div class="mode-btn-desc">単語カード → 活用形の順に学ぶ</div>
+          </div>
         </button>
         <button class="mode-btn mode-btn-quiz" onclick="startQuizFromSelect()">
           <span class="mode-btn-icon">✏️</span>
-          <div><div class="mode-btn-label">クイズモード</div><div class="mode-btn-desc">今日の単語＋復習語で4択テスト</div></div>
+          <div>
+            <div class="mode-btn-label">クイズモード</div>
+            <div class="mode-btn-desc">今日の単語＋復習語で4択テスト</div>
+          </div>
         </button>
         <button class="mode-btn mode-btn-stats" onclick="showStats()">
           <span class="mode-btn-icon">📊</span>
-          <div><div class="mode-btn-label">成果を見る</div><div class="mode-btn-desc">スコア履歴・苦手な単語を確認</div></div>
+          <div>
+            <div class="mode-btn-label">成果を見る</div>
+            <div class="mode-btn-desc">スコア履歴・苦手な単語を確認</div>
+          </div>
         </button>
         <button class="mode-btn" style="background:#0e0c20;border-color:#2e2b50;color:#c0bce8" onclick="showWordList()">
           <span class="mode-btn-icon">📋</span>
@@ -309,6 +488,7 @@
         <div class="example-box">
           <div class="ex-en" id="exEn"></div>
           <div class="ex-ja" id="exJa"></div>
+          <button class="speak-btn" id="speakBtn" onclick="speakExample()">▶ 例文を音読</button>
         </div>
       </div>
       <div class="nav">
@@ -317,23 +497,12 @@
       </div>
     </div>
 
-    <!-- 学習: 活用カード（発音チェック付き） -->
+    <!-- 学習: 活用カード -->
     <div id="conjCardView" class="hidden">
       <div class="conj-card">
         <div class="conj-header"><span class="conj-label">動詞の活用形</span></div>
         <div class="conj-rows" id="conjRows"></div>
         <button class="conj-play" id="conjPlayBtn" onclick="playConj()">▶ もう一度聞く</button>
-
-        <!-- 発音チェックセクション（音声再生後に表示） -->
-        <div class="pronun-section hidden" id="pronunSection">
-          <div class="pronun-intro">🎤 発音してみよう！</div>
-          <div id="pronunSteps"></div>
-          <div class="pronun-summary hidden" id="pronunSummary">
-            <div class="pronun-stars" id="pronunStars"></div>
-            <div class="pronun-score" id="pronunScore"></div>
-            <div class="pronun-msg" id="pronunMsg"></div>
-          </div>
-        </div>
       </div>
       <div class="nav">
         <button class="nav-btn nb-prev" onclick="backToWord()">← 単語に戻る</button>
@@ -704,13 +873,119 @@ const ALL_WORDS = [
 {"n":297,"word":"instead","pos":"副詞","meaning":"代わりに","ex_en":"I didn't want pizza, so I ordered pasta ___.","ex_ja":"ピザは食べたくなかったので、代わりにパスタを注文した。","ans":"instead","conj":""},
 {"n":298,"word":"maybe","pos":"副詞","meaning":"もしかすると・たぶん","ex_en":"___ he knows something about the surprise party.","ex_ja":"もしかすると彼はサプライズパーティーについて何か知っているかもしれない。","ans":"maybe","conj":""},
 {"n":299,"word":"since","pos":"前置詞","meaning":"〜から（今まで）・〜以来","ex_en":"I have been studying English ___ I was five years old.","ex_ja":"私は5歳のときから英語を勉強している。","ans":"since","conj":""},
-{"n":300,"word":"while","pos":"接続詞","meaning":"〜している間に","ex_en":"Please wait here ___ I go get my bag.","ex_ja":"バッグを取りに行く間ここで待っていてください。","ans":"while","conj":""}
+{"n":300,"word":"while","pos":"接続詞","meaning":"〜している間に","ex_en":"Please wait here ___ I go get my bag.","ex_ja":"バッグを取りに行く間ここで待っていてください。","ans":"while","conj":""},
+{"n":301,"word":"change","pos":"動詞","meaning":"変える・変わる","ex_en":"We need to ___ our plan for the trip.","ex_ja":"旅行の計画を変える必要がある。","ans":"change","conj":""},
+{"n":302,"word":"hurry","pos":"動詞","meaning":"急ぐ","ex_en":"We need to ___ to the station or we'll miss the train.","ex_ja":"電車に乗り遅れないよう駅へ急がなければ。","ans":"hurry","conj":""},
+{"n":303,"word":"hurt","pos":"動詞","meaning":"を傷つける・けがをさせる・痛む","ex_en":"I ___ my leg when I fell off my bike.","ex_ja":"自転車から落ちて足をけがした。","ans":"hurt","conj":"hurt|hurt|hurt"},
+{"n":304,"word":"introduce","pos":"動詞","meaning":"紹介する","ex_en":"Let me ___ myself — my name is Aiko.","ex_ja":"自己紹介させてください、愛子と申します。","ans":"introduce","conj":""},
+{"n":305,"word":"sleep","pos":"動詞","meaning":"眠る・寝る","ex_en":"I usually ___ about eight hours every night.","ex_ja":"私はたいてい毎晩8時間ほど眠る。","ans":"sleep","conj":"sleep|slept|slept"},
+{"n":306,"word":"snow","pos":"動詞","meaning":"雪が降る","ex_en":"It's ___ outside — let's build a snowman!","ex_ja":"外は雪が降っている、雪だるまを作ろう！","ans":"snowing","conj":""},
+{"n":307,"word":"bake","pos":"動詞","meaning":"（パンなどを）焼く","ex_en":"She loves to ___ a chocolate cake for her family.","ex_ja":"彼女は家族のためにチョコレートケーキを焼くのが大好きだ。","ans":"bake","conj":""},
+{"n":308,"word":"believe","pos":"動詞","meaning":"（を）信じる","ex_en":"I ___ that he can win the championship.","ex_ja":"彼が優勝できると信じている。","ans":"believe","conj":""},
+{"n":309,"word":"contact","pos":"動詞","meaning":"に連絡をとる","ex_en":"Please ___ the company office if you have any questions.","ex_ja":"ご質問があれば会社の事務所にご連絡ください。","ans":"contact","conj":""},
+{"n":310,"word":"order","pos":"動詞","meaning":"（を）注文する・（を）命令する","ex_en":"She decided to ___ spaghetti for lunch.","ex_ja":"彼女は昼食にスパゲティを注文することにした。","ans":"order","conj":""},
+{"n":311,"word":"perform","pos":"動詞","meaning":"演じる・実行する","ex_en":"The students will ___ a play at the school festival.","ex_ja":"生徒たちは学校祭で劇を演じる予定だ。","ans":"perform","conj":""},
+{"n":312,"word":"return","pos":"動詞","meaning":"返却する・もどる","ex_en":"Please ___ this book to the library by Friday.","ex_ja":"この本を金曜日までに図書館に返却してください。","ans":"return","conj":""},
+{"n":313,"word":"save","pos":"動詞","meaning":"救う・節約する","ex_en":"The firefighters worked hard to ___ people's lives.","ex_ja":"消防士たちは人々の命を救うために懸命に働いた。","ans":"save","conj":""},
+{"n":314,"word":"collect","pos":"動詞","meaning":"集める","ex_en":"The truck comes to ___ garbage every Tuesday morning.","ex_ja":"ゴミ収集車は毎週火曜日の朝に来る。","ans":"collect","conj":""},
+{"n":315,"word":"cost","pos":"動詞","meaning":"（費用が）かかる","ex_en":"This jacket ___ ten dollars at the sale.","ex_ja":"このジャケットはセールで10ドルだった。","ans":"cost","conj":"cost|cost|cost"},
+{"n":316,"word":"design","pos":"動詞","meaning":"をデザインする[設計する]","ex_en":"She wants to ___ clothes when she grows up.","ex_ja":"彼女は大人になったら服をデザインしたい。","ans":"design","conj":""},
+{"n":317,"word":"enter","pos":"動詞","meaning":"（に）入る","ex_en":"Please knock before you ___ the room.","ex_ja":"部屋に入る前にノックしてください。","ans":"enter","conj":""},
+{"n":318,"word":"throw","pos":"動詞","meaning":"を投げる","ex_en":"He ___ the ball to his teammate.","ex_ja":"彼はチームメートにボールを投げた。","ans":"threw","conj":"throw|threw|thrown"},
+{"n":319,"word":"understand","pos":"動詞","meaning":"理解する","ex_en":"I didn't ___ the meaning of that word.","ex_ja":"その単語の意味が理解できなかった。","ans":"understand","conj":"understand|understood|understood"},
+{"n":320,"word":"badminton","pos":"名詞","meaning":"バドミントン","ex_en":"I play ___ with my friends every weekend.","ex_ja":"私は毎週末に友達とバドミントンをする。","ans":"badminton","conj":""},
+{"n":321,"word":"bottle","pos":"名詞","meaning":"びん","ex_en":"He bought three ___ of water at the convenience store.","ex_ja":"彼はコンビニで水を3本買った。","ans":"bottles","conj":""},
+{"n":322,"word":"café","pos":"名詞","meaning":"カフェ","ex_en":"Let's talk at a ___ after school.","ex_ja":"放課後にカフェで話しましょう。","ans":"café","conj":""},
+{"n":323,"word":"cookie","pos":"名詞","meaning":"クッキー","ex_en":"My grandmother taught me how to make ___.","ex_ja":"祖母がクッキーの作り方を教えてくれた。","ans":"cookies","conj":""},
+{"n":324,"word":"end","pos":"名詞","meaning":"終わり・終端","ex_en":"I have to finish this project by the ___ of this month.","ex_ja":"今月末までにこのプロジェクトを終わらせなければならない。","ans":"end","conj":""},
+{"n":325,"word":"grade","pos":"名詞","meaning":"成績・学年","ex_en":"She got a very good ___ on her math test.","ex_ja":"彼女は数学のテストでとてもよい成績を取った。","ans":"grade","conj":""},
+{"n":326,"word":"grandfather","pos":"名詞","meaning":"祖父","ex_en":"I went fishing with my ___ last summer.","ex_ja":"去年の夏、祖父と釣りに行った。","ans":"grandfather","conj":""},
+{"n":327,"word":"hall","pos":"名詞","meaning":"ホール・廊下・玄関","ex_en":"The concert will be held at the city ___.","ex_ja":"コンサートは市民ホールで開催される予定だ。","ans":"hall","conj":""},
+{"n":328,"word":"letter","pos":"名詞","meaning":"手紙・文字","ex_en":"I wrote a ___ to my pen pal in Australia.","ex_ja":"オーストラリアのペンパルに手紙を書いた。","ans":"letter","conj":""},
+{"n":329,"word":"parade","pos":"名詞","meaning":"パレード","ex_en":"We watched the ___ from the sidewalk.","ex_ja":"私たちは歩道からパレードを見た。","ans":"parade","conj":""},
+{"n":330,"word":"performance","pos":"名詞","meaning":"演技・上演・演奏","ex_en":"The theater has two ___ every Saturday.","ex_ja":"その劇場は毎週土曜日に2回公演がある。","ans":"performances","conj":""},
+{"n":331,"word":"salad","pos":"名詞","meaning":"サラダ","ex_en":"I always make a ___ with fresh vegetables.","ex_ja":"私はいつも新鮮な野菜でサラダを作る。","ans":"salad","conj":""},
+{"n":332,"word":"website","pos":"名詞","meaning":"ウェブサイト","ex_en":"Please visit our ___ for more information.","ex_ja":"詳細については私たちのウェブサイトをご覧ください。","ans":"website","conj":""},
+{"n":333,"word":"actor","pos":"名詞","meaning":"俳優","ex_en":"His dream is to become a famous movie ___.","ex_ja":"彼の夢は有名な映画俳優になることだ。","ans":"actor","conj":""},
+{"n":334,"word":"animal","pos":"名詞","meaning":"動物","ex_en":"She volunteers at a shelter to take care of ___.","ex_ja":"彼女は動物の世話をするためにシェルターでボランティアをしている。","ans":"animals","conj":""},
+{"n":335,"word":"astronaut","pos":"名詞","meaning":"宇宙飛行士","ex_en":"He has wanted to become an ___ since he was little.","ex_ja":"彼は小さい頃から宇宙飛行士になりたいと思っていた。","ans":"astronaut","conj":""},
+{"n":336,"word":"chocolate","pos":"名詞","meaning":"チョコレート","ex_en":"She made a delicious ___ cake for the party.","ex_ja":"彼女はパーティーのためにおいしいチョコレートケーキを作った。","ans":"chocolate","conj":""},
+{"n":337,"word":"comedy","pos":"名詞","meaning":"喜劇・コメディー","ex_en":"We watched a funny ___ on TV last night.","ex_ja":"昨夜テレビでおもしろいコメディーを見た。","ans":"comedy","conj":""},
+{"n":338,"word":"fruit","pos":"名詞","meaning":"果物","ex_en":"The doctor told me to eat more ___ every day.","ex_ja":"医者は毎日もっと果物を食べるよう言った。","ans":"fruit","conj":""},
+{"n":339,"word":"future","pos":"名詞","meaning":"未来・将来","ex_en":"Nobody can be sure what the ___ will bring.","ex_ja":"未来が何をもたらすか誰も確かなことはわからない。","ans":"future","conj":""},
+{"n":340,"word":"goal","pos":"名詞","meaning":"ゴール・目標","ex_en":"My ___ is to speak English fluently by next year.","ex_ja":"私の目標は来年までに英語を流暢に話せるようになることだ。","ans":"goal","conj":""},
+{"n":341,"word":"hobby","pos":"名詞","meaning":"趣味","ex_en":"Photography is a popular ___ among young people.","ex_ja":"写真は若者に人気のある趣味だ。","ans":"hobby","conj":""},
+{"n":342,"word":"license","pos":"名詞","meaning":"免許証・免許","ex_en":"She passed her test and got her driver's ___.","ex_ja":"彼女は試験に合格して運転免許証を取得した。","ans":"license","conj":""},
+{"n":343,"word":"locker","pos":"名詞","meaning":"ロッカー","ex_en":"I put my bag in a ___ before gym class.","ex_ja":"体育の授業の前にかばんをロッカーに入れた。","ans":"locker","conj":""},
+{"n":344,"word":"machine","pos":"名詞","meaning":"機械","ex_en":"The washing ___ in our house broke yesterday.","ex_ja":"うちの洗濯機が昨日壊れた。","ans":"machine","conj":""},
+{"n":345,"word":"magazine","pos":"名詞","meaning":"雑誌","ex_en":"I read a sports ___ while I waited at the dentist.","ex_ja":"歯医者で待つ間にスポーツ雑誌を読んだ。","ans":"magazine","conj":""},
+{"n":346,"word":"model","pos":"名詞","meaning":"模型・モデル・手本","ex_en":"He built a ___ of an airplane for his science project.","ex_ja":"彼は理科のプロジェクトで飛行機の模型を作った。","ans":"model","conj":""},
+{"n":347,"word":"notice","pos":"名詞","meaning":"掲示・お知らせ","ex_en":"There was a ___ on the board about the school event.","ex_ja":"学校行事についての掲示板があった。","ans":"notice","conj":""},
+{"n":348,"word":"paper","pos":"名詞","meaning":"紙・書類","ex_en":"Please write your name on a sheet of ___.","ex_ja":"紙1枚に名前を書いてください。","ans":"paper","conj":""},
+{"n":349,"word":"question","pos":"名詞","meaning":"（疑問の）なぜ?","ex_en":"If you have any ___, please ask me after class.","ex_ja":"質問があれば授業の後に聞いてください。","ans":"questions","conj":""},
+{"n":350,"word":"recipe","pos":"名詞","meaning":"調理法・レシピ","ex_en":"My mother gave me her ___ for chocolate chip cookies.","ex_ja":"母がチョコチップクッキーのレシピを教えてくれた。","ans":"recipe","conj":""},
+{"n":351,"word":"rule","pos":"名詞","meaning":"規則・ルール","ex_en":"It is important to follow the ___ in school.","ex_ja":"学校の規則に従うことが大切だ。","ans":"rules","conj":""},
+{"n":352,"word":"season","pos":"名詞","meaning":"季節・時節","ex_en":"Summer is the rainy ___ in Japan.","ex_ja":"日本では夏が雨の季節だ。","ans":"season","conj":""},
+{"n":353,"word":"sofa","pos":"名詞","meaning":"ソファ","ex_en":"The cat is sleeping on the ___ in the living room.","ex_ja":"猫がリビングのソファで寝ている。","ans":"sofa","conj":""},
+{"n":354,"word":"tour","pos":"名詞","meaning":"（観光などの）旅行・ツアー","ex_en":"We joined a sightseeing ___ of the old city.","ex_ja":"私たちは旧市街の観光ツアーに参加した。","ans":"tour","conj":""},
+{"n":355,"word":"video","pos":"名詞","meaning":"ビデオ","ex_en":"I watched a funny ___ on the Internet last night.","ex_ja":"昨夜インターネットでおもしろいビデオを見た。","ans":"video","conj":""},
+{"n":356,"word":"winner","pos":"名詞","meaning":"優勝者・受賞者","ex_en":"She was the ___ of the speech contest this year.","ex_ja":"彼女は今年のスピーチコンテストの優勝者だった。","ans":"winner","conj":""},
+{"n":357,"word":"accident","pos":"名詞","meaning":"事故","ex_en":"There was a car ___ on the highway this morning.","ex_ja":"今朝高速道路で交通事故があった。","ans":"accident","conj":""},
+{"n":358,"word":"answer","pos":"名詞","meaning":"答え・回答","ex_en":"Her ___ to the question was correct.","ex_ja":"質問に対する彼女の答えは正しかった。","ans":"answer","conj":""},
+{"n":359,"word":"bank","pos":"名詞","meaning":"銀行","ex_en":"My father works at a ___ in the city center.","ex_ja":"私の父は市の中心部の銀行で働いている。","ans":"bank","conj":""},
+{"n":360,"word":"copy","pos":"名詞","meaning":"コピー・複写","ex_en":"Please make a ___ of this document for me.","ex_ja":"この書類のコピーを1部取ってください。","ans":"copy","conj":""},
+{"n":361,"word":"dentist","pos":"名詞","meaning":"歯科医","ex_en":"I go to the ___ twice a year for a checkup.","ex_ja":"私は年に2回歯科医に検診に行く。","ans":"dentist","conj":""},
+{"n":362,"word":"farmer","pos":"名詞","meaning":"農場経営者","ex_en":"Many ___ in this area grow rice and vegetables.","ex_ja":"この地域の多くの農場経営者は米と野菜を育てている。","ans":"farmers","conj":""},
+{"n":363,"word":"horse","pos":"名詞","meaning":"馬","ex_en":"She learned to ride a ___ at summer camp.","ex_ja":"彼女はサマーキャンプで馬の乗り方を学んだ。","ans":"horse","conj":""},
+{"n":364,"word":"junior high school","pos":"名詞","meaning":"中学校","ex_en":"We first met when we were in ___.","ex_ja":"私たちは中学校のときに初めて出会った。","ans":"junior high school","conj":""},
+{"n":365,"word":"kitchen","pos":"名詞","meaning":"台所","ex_en":"She spends a lot of time cooking in the ___.","ex_ja":"彼女は台所で料理をするのにたくさんの時間を費やす。","ans":"kitchen","conj":""},
+{"n":366,"word":"race","pos":"名詞","meaning":"レース・競走","ex_en":"He practiced every day to prepare for the ___.","ex_ja":"彼はレースに備えて毎日練習した。","ans":"race","conj":""},
+{"n":367,"word":"sign","pos":"名詞","meaning":"看板・標識（の板）","ex_en":"There was a ___ on the door that said 'Closed'.","ex_ja":"ドアに「閉店」と書かれた看板があった。","ans":"sign","conj":""},
+{"n":368,"word":"snowboard","pos":"名詞","meaning":"スノーボード","ex_en":"He wants to buy a new ___ for this winter.","ex_ja":"彼は今年の冬のために新しいスノーボードを買いたい。","ans":"snowboard","conj":""},
+{"n":369,"word":"subject","pos":"名詞","meaning":"（メールなどの）件名・科目・話題","ex_en":"The ___ of his email was 'Thanks for your help'.","ex_ja":"彼のメールの件名は「助けてくれてありがとう」だった。","ans":"subject","conj":""},
+{"n":370,"word":"tiger","pos":"名詞","meaning":"トラ","ex_en":"Wild ___ are endangered animals.","ex_ja":"野生のトラは絶滅危惧種だ。","ans":"tigers","conj":""},
+{"n":371,"word":"toy","pos":"名詞","meaning":"おもちゃ","ex_en":"I bought a ___ robot for my son's birthday.","ex_ja":"息子の誕生日に玩具のロボットを買った。","ans":"toy","conj":""},
+{"n":372,"word":"visitor","pos":"名詞","meaning":"訪問者・観光客","ex_en":"The museum welcomes thousands of ___ every year.","ex_ja":"その博物館は毎年何千人もの訪問者を迎える。","ans":"visitors","conj":""},
+{"n":373,"word":"crowded","pos":"形容詞","meaning":"混雑した","ex_en":"The bus was so ___ that I couldn't get on.","ex_ja":"バスがとても混雑していて乗れなかった。","ans":"crowded","conj":""},
+{"n":374,"word":"easy","pos":"形容詞","meaning":"簡単な・易しい","ex_en":"This math problem is ___ for me.","ex_ja":"この数学の問題は私には簡単だ。","ans":"easy","conj":""},
+{"n":375,"word":"fast","pos":"形容詞","meaning":"速い","ex_en":"He is the ___ runner on our team.","ex_ja":"彼は私たちのチームで一番速いランナーだ。","ans":"fastest","conj":""},
+{"n":376,"word":"half","pos":"形容詞","meaning":"半分の","ex_en":"I'll be ready in ___ an hour.","ex_ja":"30分で準備できます。","ans":"half","conj":""},
+{"n":377,"word":"hungry","pos":"形容詞","meaning":"空腹の","ex_en":"I'm very ___ — let's eat lunch now!","ex_ja":"とてもお腹が空いた、今すぐ昼食を食べよう！","ans":"hungry","conj":""},
+{"n":378,"word":"afraid","pos":"形容詞","meaning":"怖がって","ex_en":"Don't be ___ — the dog is very gentle.","ex_ja":"怖がらないで、その犬はとても穏やかだよ。","ans":"afraid","conj":""},
+{"n":379,"word":"cloudy","pos":"形容詞","meaning":"曇りの","ex_en":"It's ___ today, but it might rain later.","ex_ja":"今日は曇りだが、後で雨が降るかもしれない。","ans":"cloudy","conj":""},
+{"n":380,"word":"dirty","pos":"形容詞","meaning":"汚れた","ex_en":"Your ___ clothes go in the laundry basket.","ex_ja":"汚れた服は洗濯かごに入れてください。","ans":"dirty","conj":""},
+{"n":381,"word":"funny","pos":"形容詞","meaning":"おかしい・こっけいな","ex_en":"He told us a ___ story that made everyone laugh.","ex_ja":"彼はみんなを笑わせるおかしい話をしてくれた。","ans":"funny","conj":""},
+{"n":382,"word":"poor","pos":"形容詞","meaning":"貧しい・気の毒な","ex_en":"She donated money to help ___ children in the area.","ex_ja":"彼女はその地域の貧しい子どもたちを助けるために寄付した。","ans":"poor","conj":""},
+{"n":383,"word":"such","pos":"形容詞","meaning":"そのような・このような","ex_en":"I can't believe you did ___ things without telling me.","ex_ja":"あなたが私に言わずにそのようなことをしたとは信じられない。","ans":"such","conj":""},
+{"n":384,"word":"warm","pos":"形容詞","meaning":"暖かい","ex_en":"The ___ weather in spring makes me feel happy.","ex_ja":"春の暖かい天気は私を幸せな気持ちにさせる。","ans":"warm","conj":""},
+{"n":385,"word":"international","pos":"形容詞","meaning":"国際的な","ex_en":"The city is hosting a big ___ music festival.","ex_ja":"その市は大きな国際音楽フェスティバルを開催する予定だ。","ans":"international","conj":""},
+{"n":386,"word":"wet","pos":"形容詞","meaning":"濡れた","ex_en":"We got ___ because we forgot our umbrellas.","ex_ja":"傘を忘れて濡れてしまった。","ans":"wet","conj":""},
+{"n":387,"word":"alone","pos":"副詞","meaning":"1人で","ex_en":"She lives ___ in a small apartment near the office.","ex_ja":"彼女は事務所の近くの小さなアパートに一人で住んでいる。","ans":"alone","conj":""},
+{"n":388,"word":"else","pos":"副詞","meaning":"その他に・ほかに","ex_en":"Let's go somewhere ___ — this café is too noisy.","ex_ja":"どこかほかに行こう、このカフェはうるさすぎる。","ans":"else","conj":""},
+{"n":389,"word":"however","pos":"副詞","meaning":"しかし","ex_en":"I like the design. ___, I don't want it right now.","ex_ja":"デザインは好きです。しかし、今はいりません。","ans":"however","conj":""},
+{"n":390,"word":"part-time","pos":"副詞","meaning":"パートタイムで","ex_en":"She works ___ at a bookstore on weekends.","ex_ja":"彼女は週末に書店でパートタイムで働いている。","ans":"part-time","conj":""},
+{"n":391,"word":"abroad","pos":"副詞","meaning":"外国に（で）","ex_en":"He went ___ to study English for six months.","ex_ja":"彼は6ヶ月間英語を勉強するために外国へ行った。","ans":"abroad","conj":""},
+{"n":392,"word":"finally","pos":"副詞","meaning":"ついに・最後に","ex_en":"After many tries, she ___ learned how to play tennis.","ex_ja":"何度も挑戦した後、彼女はついにテニスの仕方を覚えた。","ans":"finally","conj":""},
+{"n":393,"word":"someday","pos":"副詞","meaning":"いつか","ex_en":"I hope to visit Spain ___.","ex_ja":"いつかスペインを訪れたいと思っている。","ans":"someday","conj":""},
+{"n":394,"word":"either","pos":"副詞","meaning":"（否定文で）〜も（…ない）","ex_en":"I don't like coffee, and I don't like tea ___.","ex_ja":"私はコーヒーが好きではなく、紅茶も好きではない。","ans":"either","conj":""},
+{"n":395,"word":"even","pos":"副詞","meaning":"〜でさえ","ex_en":"He works every day, ___ on Sunday.","ex_ja":"彼は日曜日でさえ毎日働く。","ans":"even","conj":""},
+{"n":396,"word":"beside","pos":"前置詞","meaning":"〜のそばに・〜の隣に","ex_en":"Please stand ___ the tree for the photo.","ex_ja":"写真を撮るので木のそばに立ってください。","ans":"beside","conj":""},
+{"n":397,"word":"through","pos":"前置詞","meaning":"〜を通り抜けて","ex_en":"We walked ___ the shopping mall to get to the parking lot.","ex_ja":"駐車場に行くためにショッピングモールを通り抜けた。","ans":"through","conj":""},
+{"n":398,"word":"herself","pos":"代名詞","meaning":"彼女自身（を[に]）","ex_en":"She made all the cookies ___ for the bake sale.","ex_ja":"彼女はベークセールのクッキーを全部自分で作った。","ans":"herself","conj":""},
+{"n":399,"word":"anyone","pos":"代名詞","meaning":"誰か・誰も（〜ない）","ex_en":"Does ___ know where the library is?","ex_ja":"図書館がどこにあるか誰か知っていますか？","ans":"anyone","conj":""},
+{"n":400,"word":"myself","pos":"代名詞","meaning":"私自身（を[に]）","ex_en":"I made lunch ___ today because Mom was busy.","ex_ja":"お母さんが忙しかったので今日は自分で昼食を作った。","ans":"myself","conj":""}
 ];
 
 function make3sg(w){
   if(/[^aeiou]y$/.test(w)) return w.slice(0,-1)+'ies';
   if(/(s|sh|ch|x|o)$/.test(w)) return w+'es';
   return w+'s';
+}
+function makePast(w,conj){
+  if(conj){const f=conj.split('|');if(f[1])return f[1];}
+  if(/[^aeiou]y$/.test(w)) return w.slice(0,-1)+'ied';
+  if(/e$/.test(w)) return w+'d';
+  return w+'ed';
 }
 function makePlural(w){
   if(w==='child') return 'children';
@@ -721,43 +996,39 @@ function makePlural(w){
   if(/(s|sh|ch|x)$/.test(w)) return w+'es';
   return w+'s';
 }
-function detectFormType(cw,ans,conj,pos){
-  if(!ans||ans.toLowerCase()===cw.toLowerCase()) return {type:'base'};
-  if(conj){const f=conj.split('|');
+function detectFormType(correctWord, ans, conj, pos){
+  if(!ans||ans.toLowerCase()===correctWord.toLowerCase()) return {type:'base'};
+  if(conj){
+    const f=conj.split('|');
     if(ans.toLowerCase()===f[0].toLowerCase()) return {type:'conj',idx:0};
     if(f[1]&&ans.toLowerCase()===f[1].toLowerCase()) return {type:'conj',idx:1};
     if(f[2]&&ans.toLowerCase()===f[2].toLowerCase()) return {type:'conj',idx:2};
   }
-  if(pos==='動詞'&&(ans===make3sg(cw)||ans===make3sg(cw).replace(/^./,c=>c.toUpperCase()))) return {type:'3sg'};
-  if(pos==='名詞'&&ans===makePlural(cw)) return {type:'plural'};
+  if(pos==='動詞'){
+    if(ans===make3sg(correctWord)||ans===make3sg(correctWord).replace(/^./,c=>c.toUpperCase()))
+      return {type:'3sg'};
+  }
+  if(pos==='名詞'){
+    if(ans===makePlural(correctWord)) return {type:'plural'};
+  }
   return {type:'base'};
 }
-function applyForm(d,fi){
-  const w=d.word,c=d.conj||'',p=d.pos;
-  if(fi.type==='conj'){const f=c.split('|');return f[fi.idx]||w;}
-  if(fi.type==='3sg'&&p==='動詞') return make3sg(w);
-  if(fi.type==='plural'&&p==='名詞') return makePlural(w);
+function applyForm(distractor, formInfo){
+  const w=distractor.word, c=distractor.conj||'', p=distractor.pos;
+  if(formInfo.type==='conj'){const f=c.split('|');return f[formInfo.idx]||w;}
+  if(formInfo.type==='3sg'&&p==='動詞') return make3sg(w);
+  if(formInfo.type==='plural'&&p==='名詞') return makePlural(w);
   return w;
 }
-function getDistractors(w,n){
-  const fi=detectFormType(w.word,w.ans,w.conj||'',w.pos);
-  const sp=ALL_WORDS.filter(x=>x.word!==w.word&&x.pos===w.pos);
-  const pool=sp.length>=n?sp:ALL_WORDS.filter(x=>x.word!==w.word);
-  return [...pool].sort(()=>Math.random()-.5).slice(0,n).map(d=>d.pos===w.pos?applyForm(d,fi):d.word);
-}
-// Levenshtein distance for fuzzy matching
-function lev(a,b){
-  const m=a.length,n=b.length;
-  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
-  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
-    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-  return dp[m][n];
-}
-function isClose(heard,expected){
-  const h=heard.toLowerCase().trim(),e=expected.toLowerCase().trim();
-  if(h===e) return true;
-  if(h.includes(e)||e.includes(h)) return true;
-  return lev(h,e)<=Math.max(1,Math.floor(e.length/3));
+function getDistractors(w, n) {
+  const formInfo = detectFormType(w.word, w.ans, w.conj||'', w.pos);
+  const samePos = ALL_WORDS.filter(x=>x.word!==w.word&&x.pos===w.pos);
+  const pool = samePos.length>=n ? samePos : ALL_WORDS.filter(x=>x.word!==w.word);
+  const shuffled = [...pool].sort(()=>Math.random()-.5).slice(0,n);
+  return shuffled.map(d=>{
+    if(d.pos===w.pos) return applyForm(d, formInfo);
+    return d.word;
+  });
 }
 
 
@@ -777,9 +1048,9 @@ function recordResult(n,ok){
   else{rec.wrong=(rec.wrong||0)+1;rec.interval=Math.max(1,Math.ceil(3/rec.wrong));rec.nextDate=addDays(todayStr(),rec.interval);}
   srs[n]=rec;saveSRS(srs);
 }
-function getReviewWords(d){
+function getReviewWords(dateStr){
   const srs=loadSRS();
-  return Object.entries(srs).filter(([,r])=>r.nextDate&&r.nextDate<=d&&r.wrong>0)
+  return Object.entries(srs).filter(([,r])=>r.nextDate&&r.nextDate<=dateStr&&r.wrong>0)
     .map(([n])=>ALL_WORDS.find(w=>w.n===parseInt(n))).filter(Boolean);
 }
 function saveScore(dateStr,day,correct,total,rate){
@@ -811,7 +1082,6 @@ function updProgress(cur,tot,posKey){
   const ct=document.getElementById("counter");ct.textContent=cur+" / "+tot;ct.classList.remove("hidden");
 }
 
-// ── 単語カード ──────────────────────────────────
 function renderWord(){
   const w=dayWords[wordIdx],acc=PC[w.pos]||"#7c77d1";
   document.getElementById("glowEl").style.background=`radial-gradient(circle,${acc}18 0%,transparent 70%)`;
@@ -820,8 +1090,10 @@ function renderWord(){
   const pb=document.getElementById("posBadge");pb.textContent=w.pos;pb.style.background=acc+"22";pb.style.color=acc;
   document.getElementById("wordEn").textContent=w.word;
   const wj=document.getElementById("wordJa");wj.style.color=acc;wj.textContent=w.meaning;
-  document.getElementById("exEn").textContent=w.ex_en.replace(/___[a-z]*/g,w.ans||w.word);
+  const ans=w.ans||w.word;
+  document.getElementById("exEn").textContent=w.ex_en.replace(/___[a-z]*/g,ans);
   document.getElementById("exJa").textContent=w.ex_ja;
+  const sb=document.getElementById("speakBtn");sb.textContent="▶ 例文を音読";sb.className="speak-btn";
   document.getElementById("prevBtn").disabled=(wordIdx===0);
   const nb=document.getElementById("nextBtn");
   const hc=w.conj&&w.conj.length>0;
@@ -829,6 +1101,14 @@ function renderWord(){
   else if(wordIdx===dayWords.length-1){nb.textContent="クイズへ進む →";nb.className="nav-btn nb-quiz";}
   else{nb.textContent="次の単語 →";nb.className="nav-btn nb-study";}
   updProgress(wordIdx+1,dayWords.length,w.pos);setMode("study");showView("wordCardView");
+}
+function speakExample(){
+  const w=dayWords[wordIdx],btn=document.getElementById("speakBtn");
+  btn.textContent="♪ 読み上げ中...";btn.className="speak-btn active";
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(w.ex_en.replace(/___[a-z]*/g,w.ans||w.word));
+  u.lang="en-US";u.rate=0.8;u.onend=()=>{btn.textContent="▶ 例文を音読";btn.className="speak-btn";};
+  speechSynthesis.speak(u);
 }
 function goNext(){
   const w=dayWords[wordIdx];
@@ -840,15 +1120,11 @@ function goNextWord(){if(wordIdx<dayWords.length-1){wordIdx++;renderWord();}else
 function goPrev(){if(wordIdx>0){wordIdx--;renderWord();}}
 function backToWord(){renderWord();}
 
-// ── 活用カード＋発音チェック ──────────────────────────
-let currentForms=[];
-
 function renderConj(){
-  const w=dayWords[wordIdx];
-  currentForms=w.conj.split("|");
+  const w=dayWords[wordIdx],forms=w.conj.split("|");
   const rows=document.getElementById("conjRows");rows.innerHTML="";
-  currentForms.forEach((f,i)=>{
-    const s=i>0&&f===currentForms[0];
+  forms.forEach((f,i)=>{
+    const s=i>0&&f===forms[0];
     const d=document.createElement("div");d.className="conj-row";
     d.innerHTML=`<span class="conj-role">${CL[i]}</span><span class="conj-form${s?" same":""}">${f}</span>`;
     rows.appendChild(d);
@@ -856,187 +1132,20 @@ function renderConj(){
   const nb=document.getElementById("conjNextBtn");
   if(wordIdx===dayWords.length-1){nb.textContent="クイズへ進む →";nb.className="nav-btn nb-quiz";}
   else{nb.textContent="次の単語 →";nb.className="nav-btn nb-study";}
-  // 発音セクションをリセット
-  document.getElementById("pronunSection").classList.add("hidden");
-  document.getElementById("pronunSummary").classList.add("hidden");
-  document.getElementById("pronunSteps").innerHTML="";
-  showView("conjCardView");
-  setTimeout(()=>playConj(),400);
+  showView("conjCardView");setTimeout(()=>playConj(),400);
 }
-
 function playConj(){
-  const btn=document.getElementById("conjPlayBtn");
+  const w=dayWords[wordIdx];if(!w.conj)return;
+  const forms=w.conj.split("|"),btn=document.getElementById("conjPlayBtn");
   btn.textContent="♪ 再生中...";btn.className="conj-play playing";
   speechSynthesis.cancel();let i=0;
   function nx(){
-    if(i>=currentForms.length){
-      btn.textContent="▶ もう一度聞く";btn.className="conj-play";
-      showPronunSection(); // 再生完了後に発音セクションを表示
-      return;
-    }
-    const u=new SpeechSynthesisUtterance(currentForms[i]);u.lang="en-US";u.rate=0.75;
-    u.onend=()=>{i++;setTimeout(nx,400);};speechSynthesis.speak(u);
+    if(i>=forms.length){btn.textContent="▶ もう一度聞く";btn.className="conj-play";return;}
+    const u=new SpeechSynthesisUtterance(forms[i]);u.lang="en-US";u.rate=0.75;
+    u.onend=()=>{i++;setTimeout(nx,380);};speechSynthesis.speak(u);
   }nx();
 }
 
-// ── 発音チェック ──────────────────────────────────
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const hasMic=!!SR;
-let pronunResults=[];
-
-function showPronunSection(){
-  const sec=document.getElementById("pronunSection");
-  sec.classList.remove("hidden");
-  pronunResults=[];
-  const container=document.getElementById("pronunSteps");
-  container.innerHTML="";
-
-  if(!hasMic){
-    container.innerHTML=`<div class="no-mic-notice">⚠️ このブラウザは発音チェックに対応していません。<br>Safari（iPad）で開いてください。</div>`;
-    return;
-  }
-
-  // 各活用形のステップを作成
-  const uniqueForms=[...new Set(currentForms)]; // 同じ形（put/put/put）は1回だけ
-  const formsToCheck=currentForms; // 全3形式チェック（重複含む）
-
-  formsToCheck.forEach((form,i)=>{
-    const stepDiv=document.createElement("div");
-    stepDiv.className="pronun-step"+(i===0?" active":"");
-    stepDiv.id="pstep_"+i;
-    const isSame=i>0&&form===formsToCheck[0];
-    stepDiv.innerHTML=`
-      <div class="pronun-step-label">STEP ${i+1} / ${formsToCheck.length} · ${CL[i]}</div>
-      <div class="pronun-step-word">${form}</div>
-      <button class="mic-btn${i===0?"":" disabled"}" id="micbtn_${i}" onclick="startListening(${i},'${form}')">
-        🎤 タップして発音する
-      </button>
-      <div class="pronun-result" id="presult_${i}"></div>
-    `;
-    container.appendChild(stepDiv);
-  });
-}
-
-function startListening(stepIdx,expected){
-  const btn=document.getElementById("micbtn_"+stepIdx);
-  if(btn.classList.contains("disabled")) return;
-  btn.textContent="🎧 聞いています...";
-  btn.className="mic-btn listening";
-
-  const recognition=new SR();
-  recognition.lang="en-US";
-  recognition.continuous=false;
-  recognition.interimResults=false;
-  recognition.maxAlternatives=10;
-
-  let resultReceived=false;
-
-  recognition.onresult=(e)=>{
-    resultReceived=true;
-    const transcripts=Array.from(e.results[0]).map(alt=>alt.transcript.toLowerCase().trim());
-    const ok=transcripts.some(t=>isClose(t,expected));
-    const heard=transcripts[0];
-    showStepResult(stepIdx,expected,ok,heard);
-  };
-
-  recognition.onerror=(e)=>{
-    resultReceived=true;
-    const msgs={
-      "not-allowed":         "❌ マイクを許可してください（設定→Safari→マイク→許可）",
-      "no-speech":           "🔇 声が聞こえなかったよ。もう少し大きな声で！",
-      "network":             "📶 通信エラー。Wi-Fiを確認してもう一度！",
-      "audio-capture":       "🎤 マイクが使えません。設定を確認して！",
-      "service-not-allowed": "⚠️ このブラウザは音声認識に非対応。SafariかChromeを使ってね",
-      "aborted":             "⏹ 中断されました。もう一度タップして！",
-    };
-    const msg=msgs[e.error]||("エラー("+e.error+")。もう一度試してみて！");
-    btn.textContent="🎤 タップして発音する";
-    btn.className="mic-btn";
-    const resDiv=document.getElementById("presult_"+stepIdx);
-    resDiv.className="pronun-result ng";
-    resDiv.textContent=msg;
-  };
-
-  recognition.onend=()=>{
-    if(!resultReceived){
-      btn.textContent="🎤 タップして発音する";
-      btn.className="mic-btn";
-      const resDiv=document.getElementById("presult_"+stepIdx);
-      resDiv.className="pronun-result ng";
-      resDiv.textContent="🔇 声が聞こえなかったよ。もう一度大きめに言ってみて！";
-    }
-  };
-
-  // iOS Safari: slight delay after setup before start
-  setTimeout(() => {
-    try {
-      recognition.start();
-    } catch(err) {
-      resultReceived = true;
-      btn.textContent = "🎤 タップして発音する";
-      btn.className = "mic-btn";
-      const resDiv = document.getElementById("presult_" + stepIdx);
-      resDiv.className = "pronun-result ng";
-      resDiv.textContent = "⚠️ 音声認識を開始できませんでした。もう一度タップして！";
-    }
-  }, 100);
-}
-
-function showStepResult(stepIdx,expected,ok,heard){
-  const step=document.getElementById("pstep_"+stepIdx);
-  const resDiv=document.getElementById("presult_"+stepIdx);
-  const btn=document.getElementById("micbtn_"+stepIdx);
-  step.classList.remove("active");
-  step.classList.add(ok?"done-ok":"done-ng");
-  btn.className="mic-btn disabled";
-  resDiv.className="pronun-result "+(ok?"ok":"ng");
-  if(ok){
-    resDiv.textContent="✅ 正解！ 「"+expected+"」 バッチリ！";
-  } else {
-    resDiv.textContent=`❌ 「${heard}」と聞こえたよ。正しくは「${expected}」だよ！`;
-    // 正解の発音をもう一度聞かせる
-    setTimeout(()=>{
-      const u=new SpeechSynthesisUtterance(expected);u.lang="en-US";u.rate=0.7;
-      speechSynthesis.speak(u);
-    },500);
-  }
-  pronunResults.push({expected,ok});
-
-  // 次のステップをアクティブに
-  const nextIdx=stepIdx+1;
-  const nextBtn=document.getElementById("micbtn_"+nextIdx);
-  const nextStep=document.getElementById("pstep_"+nextIdx);
-  if(nextBtn){
-    nextBtn.classList.remove("disabled");
-    nextStep.classList.add("active");
-    nextStep.scrollIntoView({behavior:"smooth",block:"nearest"});
-  } else {
-    // 全ステップ完了
-    setTimeout(()=>showPronunSummary(),600);
-  }
-}
-
-function showPronunSummary(){
-  const total=pronunResults.length;
-  const correct=pronunResults.filter(r=>r.ok).length;
-  const stars="⭐".repeat(correct)+"☆".repeat(total-correct);
-  const msgs=[
-    ["もう少し練習しよう！", "がんばって！", "少しできてるよ！"],
-    ["いいね！あと少し！", "惜しい！もう一度！", ""],
-    ["", "", "完璧！すごい！🎉"]
-  ];
-  const msg=correct===0?"もう少し練習しよう！💪":
-            correct===total?"パーフェクト！🎉🎉🎉":
-            correct===total-1?"惜しい！もう一回！":
-            "がんばってる！続けよう！";
-  document.getElementById("pronunStars").textContent=stars;
-  document.getElementById("pronunScore").textContent=`${correct} / ${total} 正解`;
-  document.getElementById("pronunMsg").textContent=msg;
-  document.getElementById("pronunSummary").classList.remove("hidden");
-  document.getElementById("pronunSummary").scrollIntoView({behavior:"smooth",block:"nearest"});
-}
-
-// ── クイズ ──────────────────────────────────────
 function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
 
 function startQuiz(){
@@ -1088,13 +1197,15 @@ function answerQ(chosen,ans,word,clickedBtn){
   const u=new SpeechSynthesisUtterance(ans);u.lang="en-US";u.rate=0.85;speechSynthesis.speak(u);
   document.getElementById("quizNextBtn").style.display="block";
 }
+
 function nextQuizQ(){quizIdx++;renderQuizQ();}
 
-// ── Summary & History ──────────────────────────
 function renderHistChart(hist,chartId,listId){
-  const chart=document.getElementById(chartId),list=document.getElementById(listId);
+  const chart=document.getElementById(chartId);
+  const list=document.getElementById(listId);
   if(!hist.length){chart.innerHTML="";list.innerHTML="";return;}
-  chart.innerHTML=hist.slice(-14).map(h=>{
+  const recent=hist.slice(-14);
+  chart.innerHTML=recent.map(h=>{
     const col=rateColor(h.rate),hpx=Math.round(56*h.rate/100),md=h.date.slice(5);
     return `<div class="hist-bar-wrap"><div class="hist-bar-pct">${h.rate}%</div><div class="hist-bar-bg"><div class="hist-bar-fill" style="height:${hpx}px;background:${col}"></div></div><div class="hist-bar-date">${md}</div></div>`;
   }).join("");
@@ -1113,8 +1224,9 @@ function showSummary(){
   const srs=loadSRS();
   const weak=Object.entries(srs).filter(([,r])=>r.wrong>=2).sort(([,a],[,b])=>b.wrong-a.wrong).slice(0,5)
     .map(([n,r])=>{const w=ALL_WORDS.find(x=>x.n===parseInt(n));return w?{word:w.word,ans:(w.ans||w.word).toLowerCase(),wrong:r.wrong}:null;}).filter(Boolean);
-  document.getElementById("weakList").innerHTML=weak.length>0?`<div class="weak-title">苦手な単語</div>`+
-    weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回</span></div>`).join(""):"";
+  const wl=document.getElementById("weakList");
+  wl.innerHTML=weak.length>0?`<div class="weak-title">苦手な単語</div>`+
+    weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回間違え</span></div>`).join(""):"";
   saveScore(curDate,dateToDay(curDate),qCorrect,tot,rate);
   renderHistChart(loadHist(),"histChart","histList");
   document.getElementById("histSection").style.display="block";
@@ -1124,12 +1236,14 @@ function showSummary(){
 }
 
 function showStats(){
-  renderHistChart(loadHist(),"statsChart","statsListHist");
+  const hist=loadHist();
+  renderHistChart(hist,"statsChart","statsList");
   const srs=loadSRS();
   const weak=Object.entries(srs).filter(([,r])=>r.wrong>=2).sort(([,a],[,b])=>b.wrong-a.wrong).slice(0,10)
     .map(([n,r])=>{const w=ALL_WORDS.find(x=>x.n===parseInt(n));return w?{word:w.word,ans:(w.ans||w.word).toLowerCase(),wrong:r.wrong}:null;}).filter(Boolean);
-  document.getElementById("statsWeak").innerHTML=weak.length>0
-    ?weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回</span></div>`).join("")
+  const sw=document.getElementById("statsWeak");
+  sw.innerHTML=weak.length>0
+    ?weak.map(w=>`<div class="weak-item"><span class="weak-word">${w.word} <span style="font-size:13px;color:#6a6888">(${w.ans})</span></span><span class="weak-cnt">${w.wrong}回間違え</span></div>`).join("")
     :'<div style="font-size:14px;color:#3a3860;padding:10px 0">苦手な単語はまだありません 🎉</div>';
   showView("statsView");
 }
@@ -1197,6 +1311,7 @@ function loadDay(s){
   document.getElementById("modeSelectSub").textContent=revCount>0?`今日の25語 + 復習語 ${revCount}語`:"今日の25語で学習・テスト";
   setMode("study");showView("modeSelectView");
 }
+
 document.getElementById("dateInput").addEventListener("change",e=>loadDay(e.target.value));
 loadDay("2026-04-20");
 </script>
